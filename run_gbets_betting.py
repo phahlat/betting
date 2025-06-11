@@ -4,7 +4,6 @@ import threading
 
 if __name__ == "__main__":
     try:
-        while True:
-            gbets_player.play()
+        gbets_player.play()
     except:
         raise

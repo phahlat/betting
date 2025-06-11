@@ -4,8 +4,7 @@ import threading
 
 if __name__ == "__main__":
     try:
-        while True:
-            gbets_player.cashout()
+        gbets_player.cashout()
     except:
         raise
         
