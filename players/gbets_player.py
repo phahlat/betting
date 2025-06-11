@@ -12,6 +12,7 @@ from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from betting.bet import bet_gbets, chunk_list
+import tempfile
 
 os.system("clear")
 is_live_sports = True
@@ -21,19 +22,23 @@ __MATCHES_COMBINATIONS_LENGTH = 3
 __DRIVER_WAIT_PERIOD = 30
 
 # Optional: configure Chrome to stay open
-options = Options()
-# options.add_experimental_option("detach", True)
+# Create a temporary directory
+user_data_dir = tempfile.mkdtemp()
+
+# Configure Chrome options
+chrome_options = Options()
+chrome_options.add_argument(f"--user-data-dir={user_data_dir}")
 
 # Disable browser notification popups
 prefs = {"profile.default_content_setting_values.notifications": 2}
-options.add_experimental_option("prefs", prefs)
+chrome_options.add_experimental_option("prefs", prefs)
 
 
 def play():
     __matches_list = []
 
     # Launch the browser
-    driver = webdriver.Chrome(options=options)
+    driver = webdriver.Chrome(options=chrome_options)
 
     # Open the website
     driver.get('https://www.gbets.co.ls/')
@@ -154,7 +159,7 @@ def cashout():
     __CASHOUT_MINIMUM = 1.5
 
     # Launch the browser
-    driver = webdriver.Chrome(options=options)
+    driver = webdriver.Chrome(options=chrome_options)
 
     # Open the website
     driver.get('https://www.gbets.co.ls/')
