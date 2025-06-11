@@ -19,9 +19,6 @@ is_live_sports = True
 __MATCHES_CHUNK_LENGTH = 5
 __MATCHES_COMBINATIONS_LENGTH = 3
 __DRIVER_WAIT_PERIOD = 30
-__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S = 2
-__INTERACTIVE_ELEMENT_WAIT_PERIOD_5S = 4
-__INTERACTIVE_ELEMENT_WAIT_PERIOD_15S = 15
 
 # Optional: configure Chrome to stay open
 options = Options()
@@ -40,7 +37,7 @@ def play():
 
     # Open the website
     driver.get('https://www.gbets.co.ls/')
-    # driver.set_window_position(10, -1280)  # x=1920
+    driver.set_window_position(10, -1280)  # x=1920
     driver.maximize_window()
 
     # # Find and click the login button
@@ -80,9 +77,10 @@ def play():
                 (By.XPATH, "//div[@data-testid='today']"))
         ).click()
 
-    time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_15S)
+    time.sleep(__DRIVER_WAIT_PERIOD)
     __e_sport_live_games = driver.find_elements(
         By.XPATH, "//div[@data-testid='e-sport-game']")
+    
     # get match teams
     for _game in __e_sport_live_games:
         __teams = _game.find_elements(By.CLASS_NAME, "comp__teamName__wrapper")
@@ -99,7 +97,7 @@ def play():
         if len(__matches_list) >= 3:
             match_combinations = list(combinations(
                 __matches_list, __MATCHES_COMBINATIONS_LENGTH if len(__matches_list) >= 4 else 2))
-            print(f"📼 📼 📼 Total Matches Combinations: {len(__chunked_matches_lists):<5}")
+            print(f"📼 📼 📼 Total Matches Combinations: {len(match_combinations):<5}")
             random_matches = random.sample(
                 population=match_combinations, k=len(match_combinations) if len(match_combinations) < 50 else 50)
         else:
@@ -196,7 +194,7 @@ def cashout():
                 continue
             
             for _ in __cashout_option_rows:
-                print(f"💶 💶 💶 💶 💶 💶 Cashout Data: {" ".join(_.text.split('\n')):>15}\n")
+                print(f"💶 💶 💶 💶 💶 💶 Cashout Data: {" ".join(_.text.split('\n')):>15}")
                 
             __cashout_money = __cashout_option_rows[0].find_elements(
                 By.XPATH, ".//span[starts-with(normalize-space(text()), 'LSL')]")
@@ -206,7 +204,7 @@ def cashout():
             __cash = float(__cashout_money[0].text.split(" ")[1])
             if __cash > __CASHOUT_MINIMUM:
                 # click cashout parent
-                print(f"💰 💰 💰 Cashout Row: {i:>10} | 🤑 🤑 🤑 CASHOUT: {__cash:>5}")
+                print(f"\n💰 💰 💰 Cashout Row: {i:>10} | 🤑 🤑 🤑 CASHOUT: {__cash:>5}")
                 __cashout_money[0].click()
 
                 # Wait for and click the button that contains the text 'Cash Out'
@@ -222,7 +220,7 @@ def cashout():
                         EC.element_to_be_clickable(
                             (By.XPATH, "[//span[normalize-space(text())='Proceed']]"))
                     ).click()
-                    print(f"💼 💼 💼 Bagged: {i:>10} | 💸 💸 💸 WIN: {__cash:>5}")
+                    print(f"\n💼 💼 💼 Bagged: {i:>10} | 💸 💸 💸 WIN: {__cash:>5}")
                     time.sleep(5)
                     break
                 except:
@@ -235,7 +233,7 @@ def cashout():
                             (By.XPATH, "//button[contains(@class, 'v3-btn') and .//span[normalize-space(text())='OK']]"))
                     ).click()
                     time.sleep(5)
-                    print(f"💼 💼 💼 Bagged: {i:>10} | 💸 💸 💸 WIN: {__cash:>5}")
+                    print(f"\n💼 💼 💼 Bagged: {i:>10} | 💸 💸 💸 WIN: {__cash:>5}")
                 except:
                     WebDriverWait(driver=driver, timeout=__DRIVER_WAIT_PERIOD).until(
                         EC.element_to_be_clickable(

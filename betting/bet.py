@@ -81,12 +81,12 @@ def bet_gbets(driver: webdriver.Chrome, matches: list):
     __DRIVER_WAIT_PERIOD = 30
     __INTERACTIVE_ELEMENT_WAIT_PERIOD_3S = 2
     __INTERACTIVE_ELEMENT_WAIT_PERIOD_5S = 4
-    __INTERACTIVE_ELEMENT_WAIT_PERIOD_10 = 10
 
     for i, _ in enumerate(matches, 1):
-        print(f"{'⛹ ⛹' * 5:<10}| Match Number: {i: 5} {_}")
+        print(f"{'⛹ ⛹' * 5:<10}| Match Number: {i:<5} {_}")
     print()
-
+    
+    __matches_length = len(matches)
     for i, teams in enumerate(matches, 1):
         __match_count = 0
         __bet_done = False
@@ -155,7 +155,7 @@ def bet_gbets(driver: webdriver.Chrome, matches: list):
                 __away_odds = float(
                     away_win.find_element(By.XPATH, "./*[2]").text)
                 print(
-                    f"Match Number: {i:<10} Match: {'⚽️':<5} H: {__home_odds} --- D: {__draw_odds} --- A: {__away_odds}")
+                    f"♻️ ♻️ ♻️ Match Number: {i}/{__matches_length:<10} Match: {'⚽️':<5} H: {__home_odds} --- D: {__draw_odds} --- A: {__away_odds}")
 
                 if __away_odds - __home_odds > 0.5:
                     # choose home win
@@ -166,7 +166,7 @@ def bet_gbets(driver: webdriver.Chrome, matches: list):
                     __bet_done = True
                     __match_count = __match_count + 1
                     print(
-                        f"Match Number: {i:<10} Bet: {'[HOME]':<5} Odds: {__home_odds:<8} Selected: {__match_count:<10} 🏆 Match: {match:<40}")
+                        f"♻️ ♻️ ♻️ Match Number: {i}/{__matches_length:<10} Bet: {'[HOME]':<5} Odds: {__home_odds:<8} Selected: {__match_count:<10} 🏆 Match: {match:<40}")
 
                 elif __home_odds - __away_odds > 0.5:
                     # choose away wind
@@ -177,7 +177,7 @@ def bet_gbets(driver: webdriver.Chrome, matches: list):
                     __bet_done = True
                     __match_count = __match_count + 1
                     print(
-                        f"Match Number: {i:<10} Bet: {'[AWAY]':<5} Odds: {__away_odds:<8} Selected: {__match_count:<10} 🏆 Match: {match:<40}")
+                        f"♻️ ♻️ ♻️ Match Number: {i}/{__matches_length:<10} Bet: {'[AWAY]':<5} Odds: {__away_odds:<8} Selected: {__match_count:<10} 🏆 Match: {match:<40}")
 
                 else:
                     # choose either can win
@@ -188,7 +188,7 @@ def bet_gbets(driver: webdriver.Chrome, matches: list):
                     __bet_done = True
                     __match_count = __match_count + 1
                     print(
-                        f"Match Number: {i:<10} Bet: {'DRAW':<5} Odds: {__draw_odds:<8} Selected: {__match_count:<10} 🏆 Match: {match:<40}")
+                        f"♻️ ♻️ ♻️ Match Number: {i}/{__matches_length:<10} Bet: {'DRAW':<5} Odds: {__draw_odds:<8} Selected: {__match_count:<10} 🏆 Match: {match:<40}")
 
                 driver.execute_script(
                     "arguments[0].focus();", match_selector[0])
@@ -196,14 +196,14 @@ def bet_gbets(driver: webdriver.Chrome, matches: list):
             except:
                 break
 
-        print(f"Match Number: {i:<10}: 🎰 BET CHECK???: {__bet_done and __match_count >= __MINIMUM_TEAMS} ::: 🤘 BET STATUS: {__bet_done} | ℀ MATCH COUNT: {__match_count}")
+        print(f"♻️ ♻️ ♻️ Match Number: {i}/{__matches_length:<10}/: 🎰 BET CHECK???: {__bet_done and __match_count >= __MINIMUM_TEAMS} ::: 🤘 BET STATUS: {__bet_done} | ℀ MATCH COUNT: {__match_count}")
         # input bet amount
         if __bet_done and __match_count >= __MINIMUM_TEAMS:
             stake_input = driver.find_elements(
                 By.XPATH, "//input[@placeholder='Stake']")
 
             print(
-                f"Match Number: {i:<10}: Betting [{i}]: 🎰 Bet State: {__bet_done} 🤼‍♂️: {__match_count}")
+                f"Match Number: {i}/{__matches_length:<10}: Betting [{i}]: 🎰 Bet State: {__bet_done} 🤼‍♂️: {__match_count}")
 
             if len(stake_input) == 0:
                 __match_count = 0
@@ -213,14 +213,14 @@ def bet_gbets(driver: webdriver.Chrome, matches: list):
                 if not (stake and stake.isdigit() and int(stake) == 1):
                     stake_input[0].send_keys("1")
                     print(
-                        f"Match Number: {i:<10}: 💰 Adding Stake: {__bet_done}")
+                        f"Match Number: {i}/{__matches_length:<10}: 💰 Adding Stake: {__bet_done}")
                     time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
 
                 driver.find_element(
                     By.XPATH, "//button[@data-testid='place-bet']").click()
                 time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_5S)
                 print(
-                    f"Match Number: {i:<10}: ✅ ✅ ✅ Bet Done: {__bet_done} ::: Match Count: {__match_count}")
+                    f"Match Number: {i}/{__matches_length:<10}: ✅ ✅ ✅ Bet Done: {__bet_done} ::: Match Count: {__match_count}")
                 print(f"♻️ ♻️ ♻️ Reset Match Count To 𝟎")
 
         del __match_count

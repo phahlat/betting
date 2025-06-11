@@ -6,6 +6,5 @@ if __name__ == "__main__":
     try:
         while True:
             gbets_player.play()
-            time.sleep(2700)
     except:
         raise
