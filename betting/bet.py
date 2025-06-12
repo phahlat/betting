@@ -47,20 +47,20 @@ def bet_sima(driver: webdriver.Chrome, match_groups_list: list):
             double_chance_odds = double_chance.find_elements(
                 By.CLASS_NAME, "event-outcomes-odd"
             )
-            home_win = double_chance_odds[0]
+            __home_odds = double_chance_odds[0]
             eith_win = double_chance_odds[1]
-            away_win = double_chance_odds[2]
+            __away_odds = double_chance_odds[2]
 
             # choose either can win
             # eith_win.click()
             # time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
 
             # choose home win
-            # home_win.click()
+            # __home_odds.click()
             # time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
 
             # choose away wind
-            # away_win.click()
+            # __away_odds.click()
 
             notifications = driver.find_elements(
                 By.XPATH,
@@ -76,11 +76,12 @@ def bet_sima(driver: webdriver.Chrome, match_groups_list: list):
 
 def bet_gbets(driver: webdriver.Chrome, match_groups_list: list):
     # Display the selected combinations
-    __match_selector = []
+    __high_stake_matches_count = 2
+    __low_stake, __high_stake = 1, 1.20
     __MINIMUM_TEAMS = 1
     __DRIVER_WAIT_PERIOD = 30
     __INTERACTIVE_ELEMENT_WAIT_PERIOD_3S = 2
-    __INTERACTIVE_ELEMENT_WAIT_PERIOD_5S = 4
+    __INTERACTIVE_ELEMENT_WAIT_PERIOD_5S = 5
 
     # loop match groups
     __match_groups_list_length = len(match_groups_list)
@@ -103,315 +104,137 @@ def bet_gbets(driver: webdriver.Chrome, match_groups_list: list):
         # loop teams in a match group
         __teams_group_length = len(__teams_group)
         print(
-            f"Group Number: {__group_number}/{__match_groups_list_length:<10}: Matches Lenth: {len(__teams_group)} "
+            f"½ ½ ½ Group Number: {__group_number}/{__match_groups_list_length:<10}: Matches Lenth: {len(__teams_group)} "
         )
 
+        # time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
+        __team_wrapper = None
         for __team_number, __match in enumerate(__teams_group, 1):
-            # FIND MATCH ROW
-            __match_selector = driver.find_elements(
-                By.XPATH,
-                f"//div[contains(@class, 'comp__teamName__wrapper') and contains(., \"{__match.split(":")[0]}\")]",
-            )
-            time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
-
             try:
-                if len(__match_selector) == 0:
-                    continue
-                # driver.execute_script(
-                #     "arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", __match_selector[0])
-                driver.execute_script(
-                    "arguments[0].scrollIntoView({block: 'center'});",
-                    __match_selector[0],
+                __team_wrapper = driver.find_element(
+                    By.XPATH,
+                    f"//div[contains(@class, 'gamesWrapper')]//div[contains(@class, 'comp__teamName__wrapper') and contains(., \"{__match.split(":")[0]}\")]",
                 )
-                time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
-                __match_selector[0].click()
-
-                time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
-
-                # FIND DRAW
-                x2_element = driver.find_element(
-                    By.XPATH, "//*[normalize-space(text())='Draw']"
-                )  # -- X2
-
-                # Get the parent __match_selector
-                parent = x2_element.find_element(By.XPATH, "./..")
-                parent_siblings = parent.find_elements(
-                    By.XPATH, "./preceding-sibling::* | ./following-sibling::*"
+                __second_parent = __team_wrapper.find_element(By.XPATH, "./ancestor::*[2]")
+                __odds_parent = __second_parent.find_elements(
+                    By.XPATH, "following-sibling::*[2]"
                 )
-                time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
+                __match_odds = __odds_parent[0].find_elements(
+                    By.XPATH, "./span[contains(@class, 'xOddButton--defaultHover')]"
+                )
 
                 # remove bets if no bet options selected
-                if len([parent, *parent_siblings]) < 3:
+                if len(__match_odds) < 3:
                     # clear bets
                     __clear_bets = driver.find_elements(
                         By.XPATH, "//span[@data-testid='delete-all-bets']"
                     )
                     if len(__clear_bets):
                         try:
+                            time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
                             WebDriverWait(driver, __DRIVER_WAIT_PERIOD).until(
                                 EC.element_to_be_clickable(__clear_bets[0])
                             ).click()
                         except:
-                            raise
+                            pass
 
                     __match_count = 0
                     time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
                     break
 
-                home_win = parent_siblings[0]
-                away_win = parent_siblings[1]
-                draw_win = parent
+                __home_win = __match_odds[0]
+                __draw_win = __match_odds[1]
+                __away_win = __match_odds[2]
 
-                __home_odds = float(home_win.find_element(By.XPATH, "./*[2]").text)
-                __draw_odds = float(draw_win.find_element(By.XPATH, "./*[2]").text)
-                __away_odds = float(away_win.find_element(By.XPATH, "./*[2]").text)
+                __home_odds = float(__match_odds[0].text)
+                __away_odds = float(__match_odds[1].text)
+                __draw_odds = float(__match_odds[2].text)
 
+                time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
                 if __away_odds - __home_odds > 0.5:
                     # choose home win
                     WebDriverWait(driver, __DRIVER_WAIT_PERIOD).until(
-                        EC.element_to_be_clickable(home_win)
+                        EC.element_to_be_clickable(__home_win)
                     )
-                    home_win.click()
+                    __home_win.click()
                     time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
-                    __bet_done = True
                     __match_count = __match_count + 1
+                    __bet_done = True
                     print(
-                        f"🥅 🥅 🥅 Match Number: {__team_number}/{__teams_group_length:<10} BET: {'⚽️ ⚽️':<5} H: {__home_odds} --- D: {__draw_odds} --- A: {__away_odds} | {'[HOME]':<5} Odds: {__home_odds:<4} Selected: {__match_count:<10} 🏆 Match: {__match:<40}"
+                        f"🥅 🥅 🥅 Match Number: {__team_number}/{__teams_group_length:<3} | {'[HOME]':<5} Odds: {__home_odds:<4} | ODDS: {'⚽️ ⚽️':<5} H: {__home_odds} --- D: {__draw_odds} --- A: {__away_odds} Selected--: {__match_count:<10}"
                     )
 
                 elif __home_odds - __away_odds > 0.5:
                     # choose away wind
+                    __match_count = __match_count + 1
                     WebDriverWait(driver, __DRIVER_WAIT_PERIOD).until(
-                        EC.element_to_be_clickable(away_win)
+                        EC.element_to_be_clickable(__away_win)
                     )
-                    away_win.click()
+                    __away_win.click()
                     time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
                     __bet_done = True
-                    __match_count = __match_count + 1
                     print(
-                        f"🥅 🥅 🥅 Match Number: {__team_number}/{__teams_group_length:<10} BET: {'⚽️ ⚽️':<4} H: {__home_odds} --- D: {__draw_odds} --- A: {__away_odds} | {'[AWAY]':<4} Odds: {__away_odds:<4} Selected: {__match_count:<10} 🏆 Match: {__match:<40}"
+                        f"🥅 🥅 🥅 Match Number: {__team_number}/{__teams_group_length:<3} | {'[AWAY]':<4} Odds: {__away_odds:<4} | ODDS: {'⚽️ ⚽️':<4} H: {__home_odds} --- D: {__draw_odds} --- A: {__away_odds} | Selected--: {__match_count:<10}"
                     )
 
                 else:
                     # choose either can win
                     WebDriverWait(driver, __DRIVER_WAIT_PERIOD).until(
-                        EC.element_to_be_clickable(draw_win)
+                        EC.element_to_be_clickable(__draw_win)
                     )
-                    draw_win.click()
+                    __draw_win.click()
                     time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
-                    __bet_done = True
                     __match_count = __match_count + 1
+                    __bet_done = True
                     print(
-                        f"🥅 🥅 🥅 Match Number: {__team_number}/{__teams_group_length:<10} BET: {'⚽️ ⚽️':<4} H: {__home_odds} --- D: {__draw_odds} --- A: {__away_odds} | {'DRAW':<4} Odds: {__draw_odds:<4} Selected: {__match_count:<10} 🏆 Match: {__match:<40}"
+                        f"🥅 🥅 🥅 Match Number: {__team_number}/{__teams_group_length:<3} | {'DRAW':<4} Odds: {__draw_odds:<4} | ODDS: {'⚽️ ⚽️':<4} H: {__home_odds} --- D: {__draw_odds} --- A: {__away_odds} Selected--: {__match_count:<10}"
                     )
 
-                driver.execute_script("arguments[0].focus();", __match_selector[0])
-                time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
+                    # time.sleep(60)
+                # time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
             except:
                 continue
 
         print(
-            f"🥅 🥅 🥅 Bet Check on Match Group: {__group_number}/{__match_groups_list_length:<10}: CAN BET??: {__bet_done and __match_count >= __MINIMUM_TEAMS}"
+            f"🥅 🥅 🥅 BET ON? {__group_number}/{__match_groups_list_length:<10}: {__bet_done and __match_count >= __MINIMUM_TEAMS}"
         )
-        # input bet amount
+        
+        # focus on team wrapper
+        if not __team_wrapper:
+            del __match_count
+            continue
+        driver.execute_script("arguments[0].focus();", __team_wrapper)
+        
         if __bet_done and __match_count >= __MINIMUM_TEAMS:
+            # input bet amount
             stake_input = driver.find_elements(
                 By.XPATH, "//input[@placeholder='Stake']"
             )
 
             print(
-                f"🥅 🥅 🥅 Bettin on Match Group: {__group_number}/{__match_groups_list_length:<10}: || Number of Matches: {__match_count}"
+                f"🥅 🥅 🥅 Betting on Match Group: {__group_number}/{__match_groups_list_length:<10}: || Number of Matches: {__match_count}"
             )
-
-            if len(stake_input) == 0:
-                __match_count = 0
-
-            else:
-                stake = stake_input[0].get_attribute("value")
-                if not (stake and stake.isdigit() and int(stake) == 1):
-                    stake_input[0].send_keys("1" if __match_count < 2 else "1.20")
-                    print(
-                        f"Group Number: {__group_number}/{__match_groups_list_length:<10}: 💰 Adding Stake: {__bet_done}"
-                    )
-                    time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
-
-                driver.find_element(
-                    By.XPATH, "//button[@data-testid='place-bet']"
-                ).click()
-                time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_5S)
+            
+            stake = stake_input[0].get_attribute("value")
+            if not (stake and stake.isdigit() and int(stake) == 1):
+                stake_input[0].send_keys(
+                    f"{__low_stake}"
+                    if __match_count < __high_stake_matches_count
+                    else f"{__high_stake}"
+                )
                 print(
-                    f"Group Number: {__group_number}/{__match_groups_list_length:<10}: ✅ ✅ ✅ Bet Done: {__bet_done} ::: Match Count: {__match_count}"
-                )
-                print(f"🥅 🥅 🥅 Reset Match Count")
-
-        del __match_count
-        del __bet_done
-
-
-def cashout_gbets(driver: webdriver.Chrome, matches: list):
-    # Display the selected combinations
-    __match_selector = []
-    __MINIMUM_TEAMS = 1
-    __DRIVER_WAIT_PERIOD = 30
-    __INTERACTIVE_ELEMENT_WAIT_PERIOD_3S = 2
-    __INTERACTIVE_ELEMENT_WAIT_PERIOD_5S = 4
-    __INTERACTIVE_ELEMENT_WAIT_PERIOD_10 = 10
-
-    for i, _ in enumerate(matches, 1):
-        print(f"{'________' * 5}| {i} {_}")
-    print()
-
-    for i, __teams_group in enumerate(matches, 1):
-        __match_count = 0
-        __bet_done = False
-
-        # clear bets for next round
-        __clear_bets = driver.find_elements(
-            By.XPATH, "//span[@data-testid='delete-all-bets']"
-        )
-        if len(__clear_bets):
-            try:
-                WebDriverWait(driver, __DRIVER_WAIT_PERIOD).until(
-                    EC.element_to_be_clickable(__clear_bets[0])
-                ).click()
-            except:
-                pass
-
-        for __match in __teams_group:
-            # find __match row
-            __match_selector = driver.find_elements(
-                By.XPATH,
-                f"//div[contains(@class, 'comp__teamName__wrapper') and contains(., \"{__match.split(":")[0]}\")]",
-            )
-            time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
-
-            try:
-                if len(__match_selector) == 0:
-                    continue
-
-                driver.execute_script(
-                    "arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});",
-                    __match_selector[0],
-                )
-                time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
-                __match_selector[0].click()
-
-                time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
-                x2_element = driver.find_element(
-                    By.XPATH, "//*[normalize-space(text())='Draw']"
-                )  # -- X2
-
-                # Get the parent __match_selector
-                parent = x2_element.find_element(By.XPATH, "./..")
-                parent_siblings = parent.find_elements(
-                    By.XPATH, "./preceding-sibling::* | ./following-sibling::*"
+                    f"½ ½ ½ Group Number: {__group_number}/{__match_groups_list_length:<10}: 💰 Adding Stake: {__bet_done} | {f'{__low_stake}' if __match_count < __high_stake_matches_count else f'{__high_stake}'}"
                 )
                 time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
 
-                # remove bets if no bet options selected
-                if len([parent, *parent_siblings]) < 3:
-                    # clear bets
-                    __clear_bets = driver.find_elements(
-                        By.XPATH, "//span[@data-testid='delete-all-bets']"
-                    )
-                    if len(__clear_bets):
-                        try:
-                            WebDriverWait(driver, __DRIVER_WAIT_PERIOD).until(
-                                EC.element_to_be_clickable(__clear_bets[0])
-                            ).click()
-                        except:
-                            raise
-
-                    __match_count = 0
-                    time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
-                    break
-
-                home_win = parent_siblings[0]
-                away_win = parent_siblings[1]
-                draw_win = parent
-
-                __home_odds = float(home_win.find_element(By.XPATH, "./*[2]").text)
-                __draw_odds = float(draw_win.find_element(By.XPATH, "./*[2]").text)
-                __away_odds = float(away_win.find_element(By.XPATH, "./*[2]").text)
-                print(
-                    f"Match Number: {i:<10} Match: {'⚽️':<4} H: {__home_odds} --- D: {__draw_odds} --- A: {__away_odds}"
-                )
-
-                if __away_odds - __home_odds > 0.5:
-                    # choose home win
-                    WebDriverWait(driver, __DRIVER_WAIT_PERIOD).until(
-                        EC.element_to_be_clickable(home_win)
-                    )
-                    home_win.click()
-                    time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
-                    __bet_done = True
-                    __match_count = __match_count + 1
-                    print(
-                        f"Match Number: {i:<10} Bet: {'[HOME]':<4} Odds: {__home_odds:<4} Selected: {__match_count:<10} 🏆 Match: {__match:<40}"
-                    )
-
-                elif __home_odds - __away_odds > 0.5:
-                    # choose away wind
-                    WebDriverWait(driver, __DRIVER_WAIT_PERIOD).until(
-                        EC.element_to_be_clickable(away_win)
-                    )
-                    away_win.click()
-                    time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
-                    __bet_done = True
-                    __match_count = __match_count + 1
-                    print(
-                        f"Match Number: {i:<10} Bet: {'[AWAY]':<4} Odds: {__away_odds:<4} Selected: {__match_count:<10} 🏆 Match: {__match:<40}"
-                    )
-
-                else:
-                    # choose either can win
-                    WebDriverWait(driver, __DRIVER_WAIT_PERIOD).until(
-                        EC.element_to_be_clickable(draw_win)
-                    )
-                    draw_win.click()
-                    time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
-                    __bet_done = True
-                    __match_count = __match_count + 1
-                    print(
-                        f"Match Number: {i:<10} Bet: {'DRAW':<4} Odds: {__draw_odds:<4} Selected: {__match_count:<10} 🏆 Match: {__match:<40}"
-                    )
-
-                driver.execute_script("arguments[0].focus();", __match_selector[0])
-                time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
-            except:
-                break
-
-        print(
-            f"Match Number: {i:<10}: 🎰 BET CHECK???: {__bet_done and __match_count >= __MINIMUM_TEAMS} ::: 🤘 BET STATUS: {__bet_done} | ℀ MATCH COUNT: {__match_count}"
-        )
-        # input bet amount
-        if __bet_done and __match_count >= __MINIMUM_TEAMS:
-            stake_input = driver.find_elements(
-                By.XPATH, "//input[@placeholder='Stake']"
-            )
-
+            driver.find_element(
+                By.XPATH, "//button[@data-testid='place-bet']"
+            ).click()
+            time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_5S)
             print(
-                f"Match Number: {i:<10}: Betting [{i}]: 🎰 Bet State: {__bet_done} 🤼‍♂️: {__match_count}"
+                f"½ ½ ½ Group Number: {__group_number}/{__match_groups_list_length:<10}: ✅ ✅ ✅ Bet Done: {__bet_done} ::: Match Count: {__match_count}"
             )
-
-            if len(stake_input) == 0:
-                __match_count = 0
-
-            else:
-                stake = stake_input[0].get_attribute("value")
-                if not (stake and stake.isdigit() and int(stake) == 1):
-                    stake_input[0].send_keys("1")
-                    print(f"Match Number: {i:<10}: 💰 Adding Stake: {__bet_done}")
-                    time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
-
-                driver.find_element(
-                    By.XPATH, "//button[@data-testid='place-bet']"
-                ).click()
-                time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_5S)
-                print(
-                    f"Match Number: {i:<10}: ✅ ✅ ✅ Bet Done: {__bet_done} ::: Match Count: {__match_count}"
-                )
-                print(f"🥅 🥅 🥅 Reset Match Count To 𝟎")
+            print(f"⓿ ⓿ ⓿ Reset Match Count")
 
         del __match_count
         del __bet_done

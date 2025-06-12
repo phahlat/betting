@@ -11,7 +11,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from betting.bet0 import bet_gbets, chunk_list
+from betting.bet import bet_gbets, chunk_list
 import tempfile
 
 os.system("clear")
