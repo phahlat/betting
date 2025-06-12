@@ -7,4 +7,3 @@ if __name__ == "__main__":
         gbets_player.cashout()
     except:
         raise
-        
