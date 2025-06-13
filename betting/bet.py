@@ -74,13 +74,13 @@ def bet_sima(driver: webdriver.Chrome, match_groups_list: list):
         driver.find_element(By.CLASS_NAME, "buttons-payin").click()
 
 
-def bet_gbets(driver: webdriver.Chrome, match_groups_list: list):
+def bet_gbets(driver: webdriver.Chrome, match_groups_list):
     # Display the selected combinations
     __high_stake_matches_count = 2
-    __low_stake, __high_stake = 1, 1.20
+    __low_stake, __high_stake = 1, 1.25
     __MINIMUM_TEAMS = 1
     __DRIVER_WAIT_PERIOD = 30
-    __INTERACTIVE_ELEMENT_WAIT_PERIOD_3S = 2
+    __INTERACTIVE_ELEMENT_WAIT_PERIOD_3S = 3
     __INTERACTIVE_ELEMENT_WAIT_PERIOD_5S = 5
 
     # loop match groups
@@ -153,57 +153,51 @@ def bet_gbets(driver: webdriver.Chrome, match_groups_list: list):
                 time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
                 if __away_odds - __home_odds > 0.5:
                     # choose home win
+                    __bet_done = True
                     WebDriverWait(driver, __DRIVER_WAIT_PERIOD).until(
                         EC.element_to_be_clickable(__home_win)
                     )
                     __home_win.click()
                     time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
                     __match_count = __match_count + 1
-                    __bet_done = True
                     print(
-                        f"🥅 🥅 🥅 Match Number: {__team_number}/{__teams_group_length:<3} | {'[HOME]':<5} Odds: {__home_odds:<4} | ODDS: {'⚽️ ⚽️':<5} H: {__home_odds} --- D: {__draw_odds} --- A: {__away_odds} Selected--: {__match_count:<10}"
+                        f"🥅 🥅 🥅 {__team_number}/{__teams_group_length:<3} | {'[HOME]':<5} Odds: {__home_odds:<4} | ODDS: {'⚽️ ⚽️':<5} H: {__home_odds} --- D: {__draw_odds} --- A: {__away_odds} Selected--: {__match_count:<10} -- @{__match}"
                     )
 
                 elif __home_odds - __away_odds > 0.5:
                     # choose away wind
+                    __bet_done = True
                     __match_count = __match_count + 1
                     WebDriverWait(driver, __DRIVER_WAIT_PERIOD).until(
                         EC.element_to_be_clickable(__away_win)
                     )
                     __away_win.click()
                     time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
-                    __bet_done = True
                     print(
-                        f"🥅 🥅 🥅 Match Number: {__team_number}/{__teams_group_length:<3} | {'[AWAY]':<4} Odds: {__away_odds:<4} | ODDS: {'⚽️ ⚽️':<4} H: {__home_odds} --- D: {__draw_odds} --- A: {__away_odds} | Selected--: {__match_count:<10}"
+                        f"🥅 🥅 🥅 {__team_number}/{__teams_group_length:<3} | {'[AWAY]':<4} Odds: {__away_odds:<4} | ODDS: {'⚽️ ⚽️':<4} H: {__home_odds} --- D: {__draw_odds} --- A: {__away_odds} | Selected--: {__match_count:<10} -- @{__match}"
                     )
 
                 else:
                     # choose either can win
+                    __bet_done = True
                     WebDriverWait(driver, __DRIVER_WAIT_PERIOD).until(
                         EC.element_to_be_clickable(__draw_win)
                     )
                     __draw_win.click()
                     time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
                     __match_count = __match_count + 1
-                    __bet_done = True
                     print(
-                        f"🥅 🥅 🥅 Match Number: {__team_number}/{__teams_group_length:<3} | {'DRAW':<4} Odds: {__draw_odds:<4} | ODDS: {'⚽️ ⚽️':<4} H: {__home_odds} --- D: {__draw_odds} --- A: {__away_odds} Selected--: {__match_count:<10}"
+                        f"🥅 🥅 🥅 {__team_number}/{__teams_group_length:<3} | {'DRAW':<4} Odds: {__draw_odds:<4} | ODDS: {'⚽️ ⚽️':<4} H: {__home_odds} --- D: {__draw_odds} --- A: {__away_odds} Selected--: {__match_count:<10} -- @{__match}"
                     )
 
                     # time.sleep(60)
-                # time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
+                time.sleep(10)
             except:
                 continue
 
         print(
             f"🥅 🥅 🥅 BET ON? {__group_number}/{__match_groups_list_length:<10}: {__bet_done and __match_count >= __MINIMUM_TEAMS}"
         )
-        
-        # focus on team wrapper
-        if not __team_wrapper:
-            del __match_count
-            continue
-        driver.execute_script("arguments[0].focus();", __team_wrapper)
         
         if __bet_done and __match_count >= __MINIMUM_TEAMS:
             # input bet amount

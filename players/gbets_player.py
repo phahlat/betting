@@ -122,7 +122,7 @@ def cashout():
 
             for _ in __cashout_option_rows:
                 print(
-                    f"💶 💶 💶 💶 💶 💶 Cashout Data: {" ".join(_.text.split('\n')):>15}"
+                    f"[[⌥ ⌥ ⌥]] Available Option|| {" ".join(_.text.split('\n')):>25}"
                 )
 
             __cashout_money = __cashout_option_rows[0].find_elements(
@@ -135,7 +135,7 @@ def cashout():
             if __cash > __CASHOUT_MINIMUM:
                 # click cashout parent
                 print(
-                    f"\n💰 💰 💰 Cashout Row: {i:>10} | 🤑 🤑 🤑 CASHOUT: {__cash:>5}"
+                    f"\n💶 💶 💶 💶 💶 💶  Cashout Row: {i:>10} | 🤑 🤑 🤑 CASHOUT: {__cash:>5}"
                 )
                 __cashout_money[0].click()
 
@@ -152,7 +152,7 @@ def cashout():
                 try:
                     WebDriverWait(driver=driver, timeout=__DRIVER_WAIT_PERIOD).until(
                         EC.element_to_be_clickable(
-                            (By.XPATH, "[//span[normalize-space(text())='Proceed']]")
+                            (By.XPATH, "[//*[normalize-space(text())='Proceed']]")
                         )
                     ).click()
                     print(f"\n💼 💼 💼 Bagged: {i:>10} | 💸 💸 💸 WIN: {__cash:>5}")
@@ -286,26 +286,25 @@ def play():
     print(f"🧩 🧩 🧩 Total Initial Match Groups: {__match_groups_length}")
 
     # if there's more than 5 teams add them to the beginning of the matches list
-    __split_teams = [[]]
+    __split_teams = []
     if len(__teams_list) >= 14:
-        print(f"🔎 🔎 🔎 16+: SPLIT TEAMS: {len(__teams_list):>3}")
-        __first, __last = (
-            __teams_list[: len(__teams_list) // 2],
-            __teams_list[len(__teams_list) // 2 :],
-        )
-        __split_teams = [__last]
-        __split_teams = [__first] + __split_teams
-        __split_teams = [__teams_list] + __split_teams
+        __split_teams = [__teams_list[: len(__teams_list) // 2],  __teams_list[len(__teams_list) // 2 :], __teams_list]
         __match_groups_length += 3
+        
+        import pprint
+        pprint.pprint(__split_teams)
+        print(f"🔎 🔎 🔎 14>: SPLIT TEAMS HIGH: {len(__split_teams):>3}")
 
     else:
-        print(f"🔎 🔎 🔎 16-: SPLIT TEAMS: {len(__teams_list):>3}")
         __split_teams = [__teams_list]
         __match_groups_length += 1
-
+        import pprint
+        pprint.pprint(__split_teams)
+        print(f"🔎 🔎 🔎 14<: SPLIT TEAMS LOW: {len(__split_teams):>3}")
+    
     # bet on splitted match list
     bet_gbets(driver=driver, match_groups_list=__split_teams)
-    print(f"\n{'=='*25}\n")
+    print(f"\n{'=='*50}\n")
 
     # GENERATE ÍMATCH GROUPS, MAKE COMBINATIONS AND BET ON THEM
     for i, __matches_list in enumerate(__chunked_matches_lists, 1):
@@ -317,6 +316,7 @@ def play():
                     __MATCHES_COMBINATIONS_LENGTH if len(__matches_list) > 4 else 2,
                 )
             )
+            
             print(
                 f"⚽️ ⚽️ ⚽️ Total Teams Matches Combinations: {len(__match_combinations):<5}"
             )
@@ -329,11 +329,11 @@ def play():
             __random_match_group_list_selection = [__matches_list]
 
         print(
-            f"⚽️ ⚽️ ⚽️ Match Group: {i:>3}/{__match_groups_length} | Total Matches In Group: {len(__random_match_group_list_selection):> 3}\n{'=='*25}\n"
+            f"⚽️ ⚽️ ⚽️ Match Group: {i:>3}/{__match_groups_length} | Total Matches In Group: {len(__random_match_group_list_selection):> 3}\n{'=='*50}\n"
         )
 
         bet_gbets(driver=driver, match_groups_list=__random_match_group_list_selection)
 
-        print(f"\n{'=='*25}\n")
+        print(f"\n{'=='*50}\n")
     print(f"\n🔚 🔚 🔚")
     driver.quit()
