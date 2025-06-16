@@ -146,9 +146,12 @@ def gbets_cashout():
 
     # Launch the browser
     driver = webdriver.Chrome(options=chrome_options)
+    driver.execute_cdp_cmd('Network.clearBrowserCookies', {})
+    driver.execute_cdp_cmd('Network.clearBrowserCache', {})
 
     # Open the website
     driver.get("https://www.gbets.co.ls/")
+    # Clear browser cache using DevTools Protocol
     driver.execute_script("document.body.style.zoom='80%'")
     driver.set_window_position(10, -1280)  # x=1920
     driver.maximize_window()

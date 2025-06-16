@@ -4,12 +4,16 @@ import threading
 
 if __name__ == "__main__":
     try:
+        __WAIT_PERIOD = 60 * 30  # 30 minutes
         while True:
+            with open("teams.dat", "w") as __file:
+                __file.close()
+                
             gbets_player_get_teams.get_teams()
             print(
                 f"[ {time.strftime('%Y-%m-%d %H:%M:%S')} ] Waiting for the next round..."
             )
-            time.sleep(900 * 2)  # Sleep to avoid rapid looping
+            time.sleep(__WAIT_PERIOD)  # Sleep to avoid rapid looping
     except:
         raise
 

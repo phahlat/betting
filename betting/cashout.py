@@ -81,9 +81,19 @@ def reload_results_and_table(driver: webdriver.Chrome):
 
 def withdraw_cashout(btn_cashout, cash, row, driver):
     # Click the cashout button
-    btn_cashout.click()
+    if not btn_cashout:
+        print(f"[ {datetime.now()} ] No cashout button found for row {row}.")
+        return
     
-    print(f"[ {datetime.now()} ] 💰 💰 💰 Cashing out: {row:>5} | Cashout Money: {cash:>5}")
+    if btn_cashout.is_displayed() and btn_cashout.is_enabled():
+        driver.execute_script(
+            "arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});",
+            btn_cashout,
+        )
+        btn_cashout.click()
+    else:
+        print(f"[ {datetime.now()} ] Cashout button not clickable for row {row}.")
+        return
 
     # Wait for and click the button that contains the text 'Cash Out'
     WebDriverWait(driver=driver, timeout=__DRIVER_WAIT_PERIOD).until(
@@ -112,10 +122,12 @@ def withdraw_cashout(btn_cashout, cash, row, driver):
         # ).click()
 
         print(
-            f"[ {datetime.now()} ] 💼 💼 💼 Bagged: {row:>5} | 💸 💸 💸 WIN: {cash:>5}"
+            f"[ {datetime.now()} ] 💼 💼 💼 Proceeded to Bag: {row:>5} | 💸 💸 💸 WIN: {cash:>5}"
         )
+        time.sleep(5)
         return
     except:
+        time.sleep(5)
         pass
 
     # confirm cashout
@@ -131,6 +143,7 @@ def withdraw_cashout(btn_cashout, cash, row, driver):
         print(
             f"[ {datetime.now()} ] 💼 💼 💼 Bagged: {row:>5} | 💸 💸 💸 WIN: {cash:>5}"
         )
+        time.sleep(5)
         return
     except:
         WebDriverWait(driver=driver, timeout=__DRIVER_WAIT_PERIOD).until(
@@ -144,20 +157,21 @@ def withdraw_cashout(btn_cashout, cash, row, driver):
         print(
             f"[ {datetime.now()} ] 😩 😩 😩 Canceled: {row:>5} | ❌ ❌ ❌ LOSS: {cash:>5}"
         )
+        time.sleep(5)
         return
 
 
 def gbets_cashout():
-    __CASHOUT_LOWER_BOUND = 2
-    __CASHOUT_MEDIAN = 10
-    __CASHOUT_UPPER_BOUND = 20
+    __CASHOUT_LOWER_BOUND = 1.5
 
     __POSSIBLE_WIN_LOWER_BOUND = 5
-    __POSSIBLE_WIN_MEDIAN = 10
+    __POSSIBLE_WIN_MEDIAN = 30
     __POSSIBLE_WIN_UPPER_BOUND = 100
 
     # Launch the browser
     driver = webdriver.Chrome(options=chrome_options)
+    driver.execute_cdp_cmd('Network.clearBrowserCookies', {})
+    driver.execute_cdp_cmd('Network.clearBrowserCache', {})
 
     # Open the website
     driver.get("https://www.gbets.co.ls/")
@@ -190,27 +204,26 @@ def gbets_cashout():
             continue
 
         # get rows from not resulted
+        time.sleep(30)
         __table_rows = __table_body[0].find_elements(
             By.CSS_SELECTOR, "tr.v3-table-row.v3-table-row-level-0"
         )
-        
+
         for i, __row in enumerate(__table_rows, 0):
             # find the first cashout option that has possible cashout
             __possible_cashout_elements = __row.find_elements(
                 By.XPATH,
                 ".//td[@class='v3-table-cell']//span[contains(text(), 'Possible Win')]",
             )
-            
+
             # find the first cashout option that has cashout money
             __cashout_money_elements = __row.find_elements(
                 By.XPATH,
                 ".//span[@class='myBetsCashout__text']/span[starts-with(normalize-space(text()), 'LSL')]",
             )
             if not len(__possible_cashout_elements) or not len(__cashout_money_elements):
-                print(
-                    f"[[ 👀 👀 👀 ]] [ {datetime.now()} ] COUNT: Possible Cashout: {len(__cashout_money_elements)} -- Cashout: {len(__possible_cashout_elements)}")
                 continue
-            
+
             # Extract the possible cashout and cashout money values
             __possible_cashout = float(
                 __possible_cashout_elements[0].text.split(" ")[-1]
@@ -218,9 +231,10 @@ def gbets_cashout():
             __cashout_money = float(
                 __cashout_money_elements[0].text.split(" ")[1])
 
-            print(
-                f"[[ 👀 👀 👀 ]] [ {datetime.now()} ] Row: {i:>5} | Possible Cashout: {__possible_cashout:>5} | Cashout Money: {__cashout_money:>5} LOW {__CASHOUT_LOWER_BOUND}: {__cashout_money > __CASHOUT_LOWER_BOUND and __possible_cashout > __POSSIBLE_WIN_LOWER_BOUND and __possible_cashout < __POSSIBLE_WIN_MEDIAN} -- MEDIUM {__CASHOUT_MEDIAN}: {__cashout_money > __CASHOUT_MEDIAN and __possible_cashout > __POSSIBLE_WIN_MEDIAN and __possible_cashout < __POSSIBLE_WIN_UPPER_BOUND} -- HIGH {__CASHOUT_UPPER_BOUND}: {__cashout_money > __CASHOUT_UPPER_BOUND and __possible_cashout > __POSSIBLE_WIN_UPPER_BOUND}"
-            )
+            if __cashout_money >= __CASHOUT_LOWER_BOUND:
+                print(
+                    f"[[ 🧮 🧮 🧮 ]] [ {datetime.now()} ] Row: {i:<3} | Possible Cashout: {__possible_cashout:>5} | Cashout Money: {__cashout_money:>5} LOW PW {__POSSIBLE_WIN_LOWER_BOUND}: {__cashout_money > __CASHOUT_LOWER_BOUND and __possible_cashout > __POSSIBLE_WIN_LOWER_BOUND and __possible_cashout < __POSSIBLE_WIN_MEDIAN} -- MEDIUM PW {__POSSIBLE_WIN_MEDIAN}: {__cashout_money > __CASHOUT_LOWER_BOUND and __possible_cashout > __POSSIBLE_WIN_MEDIAN and __possible_cashout < __POSSIBLE_WIN_UPPER_BOUND} -- HIGH PW {__POSSIBLE_WIN_UPPER_BOUND}: {__cashout_money > __CASHOUT_LOWER_BOUND and __possible_cashout > __POSSIBLE_WIN_UPPER_BOUND}"
+                )
 
             # Check if cashout money and possible cashout meet the criteria
             if (
@@ -228,55 +242,76 @@ def gbets_cashout():
                 and __possible_cashout >= __POSSIBLE_WIN_LOWER_BOUND
                 and __possible_cashout < __POSSIBLE_WIN_MEDIAN
             ):
+                time.sleep(2)
                 withdraw_cashout(
-                    btn_cashout=__cashout_money_elements[0],
+                    btn_cashout=__cashout_money_elements[0].find_element(By.XPATH, "./../.."),
                     cash=__cashout_money,
                     row=i,
                     driver=driver,
                 )
                 print(
-                    f"[ {datetime.now()} ] 💰 💰 💰 Small Win: {i:>5} | Possible Cashout: {__possible_cashout:>5} | Cashout Money: {__cashout_money:>5}"
+                    f"[ {datetime.now()} ] 💰 💰 💰 Small Win: {i:<3} | Possible Cashout: {__possible_cashout:>5} | Cashout Money: {__cashout_money:>5}"
                 )
             elif (
-                __cashout_money >= __CASHOUT_MEDIAN
+                __cashout_money >= __CASHOUT_LOWER_BOUND
                 and __possible_cashout >= __POSSIBLE_WIN_MEDIAN
                 and __possible_cashout < __POSSIBLE_WIN_UPPER_BOUND
             ):
+                time.sleep(2)
                 withdraw_cashout(
-                    btn_cashout=__cashout_money_elements[0],
+                    btn_cashout=__cashout_money_elements[0].find_element(By.XPATH, "./../.."),
                     cash=__cashout_money,
                     row=i,
                     driver=driver,
                 )
                 print(
-                    f"[ {datetime.now()} ] 💰 💰 💰 Medium Win: {i:>5} | Possible Cashout: {__possible_cashout:>5} | Cashout Money: {__cashout_money:>5}"
+                    f"[ {datetime.now()} ] 💰 💰 💰 Medium Win: {i:<3} | Possible Cashout: {__possible_cashout:>5} | Cashout Money: {__cashout_money:>5}"
                 )
             elif (
-                __cashout_money >= __CASHOUT_UPPER_BOUND
-                and __possible_cashout > __POSSIBLE_WIN_UPPER_BOUND
+                __cashout_money >= __CASHOUT_LOWER_BOUND
+                and __possible_cashout >= __POSSIBLE_WIN_UPPER_BOUND
             ):
+                time.sleep(2)
                 withdraw_cashout(
-                    btn_cashout=__cashout_money_elements[0],
+                    btn_cashout=__cashout_money_elements[0].find_element(By.XPATH, "./../.."),
                     cash=__cashout_money,
                     row=i,
                     driver=driver,
                 )
                 print(
-                    f"[ {datetime.now()} ] 💰 💰 💰 Big Win: {i:>5} | Possible Cashout: {__possible_cashout:>5} | Cashout Money: {__cashout_money:>5}"
-                )
-            else:
-                print(
-                    f"[ {datetime.now()} ] 😒 😒 😒 Nothing Withdrawable: {i:>5} | Possible Cashout: {__possible_cashout:>5} | Cash: {__cashout_money:>5}\n"
+                    f"[ {datetime.now()} ] 💰 💰 💰 Big Win: {i:<3} | Possible Cashout: {__possible_cashout:>5} | Cashout Money: {__cashout_money:>5}"
                 )
 
-            del __cashout_money
+            elif (
+                __cashout_money >= __CASHOUT_LOWER_BOUND
+                and __possible_cashout < __POSSIBLE_WIN_LOWER_BOUND
+            ):
+                time.sleep(2)
+                withdraw_cashout(
+                    btn_cashout=__cashout_money_elements[0].find_element(By.XPATH, "./../.."),
+                    cash=__cashout_money,
+                    row=i,
+                    driver=driver,
+                )
+                print(
+                    f"[ {datetime.now()} ] 💰 💰 💰 Lowest Bet: {i:<3} | Possible Cashout: {__possible_cashout:>5} | Cashout Money: {__cashout_money:>5}"
+                )
+
+            else:
+                pass
+                # print(
+                #     f"\r[ {datetime.now()} ] 😒 😒 😒 Nothing Withdrawable -> Row: {i:<3} | Possible Cashout: {__possible_cashout:>5} | Cash: {__cashout_money:>5}\n", end="", flush=True
+                # )
+                
             del __possible_cashout
+            del __cashout_money
+            del __cashout_money_elements
+            del __possible_cashout_elements
 
         __close_header = driver.find_elements(
             By.XPATH,
             "//div[contains(@class, 'accountModal__header__title')]/following-sibling::*",
         )
         __close_header[0].click()
-        time.sleep(15)
 
     driver.quit()

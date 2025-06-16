@@ -26,13 +26,16 @@ __DRIVER_WAIT_FOR_BROWSER_LOAD_PERIOD = 15
 user_data_dir = tempfile.mkdtemp()
 
 # Configure Chrome options
-chrome_options = Options()
-chrome_options.add_argument(f"--user-data-dir={user_data_dir}")
-# chrome_options.add_argument("--headless=new")  # Headless mode
+options = Options()
+options.add_argument(f"--user-data-dir={user_data_dir}")
+options.add_argument("--disable-application-cache")
+options.add_argument("--disk-cache-size=0")
+options.add_argument("--media-cache-size=0")
+options.add_argument("--incognito")  # Optional: incognito mode for session isolation
 
 # Disable browser notification popups
 prefs = {"profile.default_content_setting_values.notifications": 2}
-chrome_options.add_experimental_option("prefs", prefs)
+options.add_experimental_option("prefs", prefs)
 
 
 def sign_in(driver: webdriver.Chrome):
@@ -88,8 +91,10 @@ def bet_splitted_lists():
     __teams_list = []
 
     # Launch the browser
-    driver = webdriver.Chrome(options=chrome_options)
-
+    driver = webdriver.Chrome(options=options)
+    driver.execute_cdp_cmd('Network.clearBrowserCookies', {})
+    driver.execute_cdp_cmd('Network.clearBrowserCache', {})
+    
     # Open the website
     driver.get("https://www.gbets.co.ls/")
     driver.execute_script("document.body.style.zoom='80%'")

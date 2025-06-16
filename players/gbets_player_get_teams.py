@@ -113,6 +113,8 @@ def navigate_to_sports(driver: webdriver.Chrome):
 def get_teams():
     # Launch the browser
     driver = webdriver.Chrome(options=chrome_options)
+    driver.execute_cdp_cmd('Network.clearBrowserCookies', {})
+    driver.execute_cdp_cmd('Network.clearBrowserCache', {})
 
     # Open the website
     driver.get("https://www.gbets.co.ls/")

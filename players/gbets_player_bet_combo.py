@@ -18,7 +18,7 @@ os.system("clear")
 is_live_sports = True
 # GET GAMES LIST
 __MATCHES_CHUNK_LENGTH = 6
-__MATCHES_COMBINATIONS_LENGTH = 3
+__MATCHES_COMBINATIONS_LENGTH = 4
 __DRIVER_WAIT_PERIOD = 60
 
 __DRIVER_WAIT_FOR_BROWSER_LOAD_PERIOD = 15
@@ -28,9 +28,15 @@ __DRIVER_WAIT_FOR_BROWSER_LOAD_PERIOD = 15
 user_data_dir = tempfile.mkdtemp()
 
 # Configure Chrome options
-chrome_options = Options()
-chrome_options.add_argument(f"--user-data-dir={user_data_dir}")
-
+options = Options()
+options.add_argument(f"--user-data-dir={user_data_dir}")
+options.set_preference("browser.cache.disk.enable", False)
+options.set_preference("browser.cache.memory.enable", False)
+options.set_preference("browser.cache.offline.enable", False)
+options.set_preference("network.http.use-cache", False)
+options.set_preference("privacy.clearOnShutdown.cache", True)
+options.set_preference("privacy.clearOnShutdown.cookies", True)
+options.set_preference("privacy.sanitize.sanitizeOnShutdown", True)
 
 def sign_in(driver: webdriver.Firefox):
     # # Find and click the login button
@@ -86,7 +92,8 @@ def bet_combo_lists():
     __random_teams_combination = []
 
     # Launch the browser
-    driver = webdriver.Firefox(options=chrome_options)
+    driver = webdriver.Firefox(options=options)
+    driver.delete_all_cookies()
 
     # Open the website
     driver.get("https://www.gbets.co.ls/")

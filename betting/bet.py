@@ -115,7 +115,7 @@ def bet_gbets(driver, match_groups_list, browser_type="CHROME"):
                 __draw_odds = float(__match_odds[1].text)
                 __away_odds = float(__match_odds[2].text)
 
-                time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
+                # time.sleep(__INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
                 if __away_odds - __home_odds > 0.5:
                     # choose home win
                     __bet_done = True
