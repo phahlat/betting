@@ -24,7 +24,8 @@ driver = webdriver.Chrome(options=options)
 
 # Open the website
 driver.get("https://www.simacombet.com/")
-driver.maximize_window()
+driver.execute_script("document.body.style.zoom='80%'")
+driver.fullscreen_window()
 
 # close add box
 WebDriverWait(driver, 10).until(

@@ -1,9 +1,8 @@
-import players.gbets_player as gbets_player
+from betting.cashout import gbets_cashout
 import time
-import threading
 
 if __name__ == "__main__":
     try:
-        gbets_player.cashout()
+        gbets_cashout()
     except:
         raise
