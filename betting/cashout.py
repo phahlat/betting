@@ -77,11 +77,10 @@ def reload_results_and_table(driver):
         )
         
         if len(__result_options) == 0:
-            print(f"<<< __result_options len: {len(__result_options)}")
-            return # Not Resulted
+            return
         
         print(f">> __result_options len: {__result_options[0].get_attribute('innerHTML')}")
-        __result_options[0].click()  # Not Resulted
+        __result_options[0].click()
     except Exception as e:
         return None
     time.sleep(2)
