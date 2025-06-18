@@ -1,2 +1,0 @@
-# 10 rerun cron
-*/3 * * * * g0d /home/g0d/Workspace/Projects/betting/cron.betting.cashout.sh >> /home/g0d/Workspace/Projects/betting/cron.cashout.$(date +\%Y-\%m-\%d_\%H-\%M-\%S).log 2>&1

@@ -108,7 +108,7 @@ def bet_splitted_lists():
     # get the live e-sport games
     navigate_to_sports(driver)
 
-    with open("teams.split.data", "r") as __file:
+    with open("data/teams.split.data", "r") as __file:
         __teams_list = [team.strip() for team in __file.readlines() if team.strip()]
         __chunked_matches_lists = list(
             chunk_list(

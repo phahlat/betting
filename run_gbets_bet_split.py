@@ -9,7 +9,7 @@ if __name__ == "__main__":
         try:
             while True:
                 # set status for betting to continue
-                with open("teams.canbet.data", "r") as __file:
+                with open("data/teams.canbet.data", "r") as __file:
                     __can_bet = __file.readline()
                     if __can_bet.strip() == "True":
                         print(f"\r[ {time.strftime('%Y-%m-%d %H:%M:%S')} ] CAN BET??? {__can_bet.strip()}", end="")
@@ -24,7 +24,7 @@ if __name__ == "__main__":
             )
             
             # clear split
-            with open("teams.split.data", "w") as __file:
+            with open("data/teams.split.data", "w") as __file:
                 __file.close()
                 
             # Sleep to avoid rapid looping

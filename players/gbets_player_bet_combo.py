@@ -110,7 +110,7 @@ def bet_combo_lists():
     # get the live e-sport games
     navigate_to_sports(driver)
 
-    with open("teams.combo.data", "r") as __file:
+    with open("data/teams.combo.data", "r") as __file:
         __matches_list = [team.strip() for team in __file.readlines() if team.strip()]
         # Generate all combinations of half the available matches
         if len(__matches_list) > 3:

@@ -10,15 +10,15 @@ if __name__ == "__main__":
             print(f"[ {time.strftime('%Y-%m-%d %H:%M:%S')} ] 🎬 🎬 🎬 --- START GET TEAMS")
             
             # set status for betting to pause
-            with open("teams.canbet.data", "w") as __file:
+            with open("data/teams.canbet.data", "w") as __file:
                 print("False", file=__file)
                 __file.close()
             
-            with open("teams.split.data", "w") as __file:
+            with open("data/teams.split.data", "w") as __file:
                 __file.close()
             
             # clear combo
-            with open("teams.combo.data", "w") as __file:
+            with open("data/teams.combo.data", "w") as __file:
                 __file.close()
                 
             gbets_player_get_teams.get_teams()
@@ -27,7 +27,7 @@ if __name__ == "__main__":
             )
             
             # set status for betting to continue
-            with open("teams.canbet.data", "w") as __file:
+            with open("data/teams.canbet.data", "w") as __file:
                 print("True", file=__file)
                 __file.close()
                 

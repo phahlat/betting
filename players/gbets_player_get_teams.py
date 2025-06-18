@@ -124,8 +124,8 @@ def get_teams():
 
     print(f"⚽️ ⚽️ ⚽️ E-Sports Games Count: {len(__get_e_games):<5}")
     # get match teams
-    with open("teams.split.data", "w") as __split_teams_file:
-        with open("teams.combo.data", "w") as __combo_teams_file:
+    with open("data/teams.split.data", "w") as __split_teams_file:
+        with open("data/teams.combo.data", "w") as __combo_teams_file:
             for _game in __get_e_games:
                 if len(__get_e_games) < MINIMUM_GAMES:
                     break
