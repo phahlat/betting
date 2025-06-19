@@ -12,22 +12,28 @@ if __name__ == "__main__":
                 with open("data/teams.canbet.data", "r") as __file:
                     __can_bet = __file.readline()
                     if __can_bet.strip() == "True":
-                        print(f"\r[ {time.strftime('%Y-%m-%d %H:%M:%S')} ] CAN BET??? {__can_bet.strip()}", end="")
+                        print(
+                            f"\r[ {time.strftime('%Y-%m-%d %H:%M:%S')} ] CAN BET??? {__can_bet.strip()  + ' ' *10}",
+                            end="",
+                        )
                         break
                     __file.close()
-                    
-                print(f"\r[ {time.strftime('%Y-%m-%d %H:%M:%S')} ] CAN BET??? {__can_bet.strip()}", end="")
+
+                print(
+                    f"\r[ {time.strftime('%Y-%m-%d %H:%M:%S')} ] CAN BET??? {__can_bet.strip() + ' ' *10}",
+                    end="",
+                )
                 time.sleep(2)
-                
+
             bet_combo.bet_combo_lists()
             print(
                 f"[ {time.strftime('%Y-%m-%d %H:%M:%S')} ] Waiting for the next combo round... in {__WAIT_PERIOD // 60} minutes."
             )
-            
+
             # clear combo
             with open("data/teams.combo.data", "w") as __file:
                 __file.close()
-                
+
             time.sleep(__WAIT_PERIOD)
         except Exception as e:
             print(f"An error occurred: {e}")

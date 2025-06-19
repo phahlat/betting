@@ -1,0 +1,2 @@
+# 10 rerun cron
+*/15 * * * * /home/g0d/Workspace/Projects/betting/cron.betting.play-gbets.sh >> /home/g0d/Workspace/Projects/betting/cron.betting.play-gbets.$(date +\%Y-\%m-\%d_\%H-\%M-\%S).log 2>&1

@@ -56,7 +56,7 @@ def remove_suspended(driver):
 
 def bet_gbets(driver, match_groups_list, browser_type="CHROME"):
     time.sleep(10)
-    
+
     # loop match groups
     __match_groups_list_length = len(match_groups_list)
     for __group_number, __teams_group in enumerate(match_groups_list, 0):
@@ -197,10 +197,10 @@ def bet_gbets(driver, match_groups_list, browser_type="CHROME"):
 
                     __stake_input[0].send_keys(__stake_value)
                     time.sleep(INTERACTIVE_ELEMENT_WAIT_PERIOD_10S)
-                
+
                 # remove suspended bets
                 remove_suspended(driver)
-                
+
                 # click place bet
                 driver.find_element(
                     By.XPATH, "//button[@data-testid='place-bet']"

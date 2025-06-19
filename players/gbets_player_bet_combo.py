@@ -11,13 +11,14 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.action_chains import ActionChains
 from betting.bet import bet_gbets, chunk_list
 import tempfile
 
 os.system("clear")
 is_live_sports = True
 # GET GAMES LIST
-TEAMS_COMBINATIONS_LENGTH = 5
+TEAMS_COMBINATIONS_LENGTH = 7
 MATCHES_MAX_COMBINATIONS_LENGTH = 100
 DRIVER_WAIT_PERIOD = 60
 DRIVER_WAIT_FOR_BROWSER_LOAD_PERIOD = 10
@@ -50,6 +51,22 @@ def sign_in(driver: webdriver.Firefox):
     driver.find_element(
         By.XPATH, "//button[@type='submit']//span[contains(text(),'Sign In')]"
     ).click()
+
+
+def sign_out(driver):
+    # # Find and click the login button
+    __profile_button = driver.find_elements(
+        By.CSS_SELECTOR, ".v3-dropdown-trigger.profileInfo__circleButton"
+    )
+    if len(__profile_button) == 0:
+        pass
+    ActionChains(driver).move_to_element(__profile_button[0]).perform()
+    time.sleep(3)
+    __logout = driver.find_elements(By.XPATH, "//div[normalize-space(text())='Logout']")
+    if len(__logout) == 0:
+        return
+    __logout[0].click()
+    time.sleep(5)
 
 
 def navigate_to_sports(driver: webdriver.Firefox):
@@ -113,11 +130,11 @@ def bet_combo_lists():
     with open("data/teams.combo.data", "r") as __file:
         __matches_list = [team.strip() for team in __file.readlines() if team.strip()]
         # Generate all combinations of half the available matches
-        if len(__matches_list) > 3:
+        if len(__matches_list) > 4:
             __match_combinations = list(
                 combinations(
                     __matches_list,
-                    TEAMS_COMBINATIONS_LENGTH if len(__matches_list) >= 5 else 3,
+                    TEAMS_COMBINATIONS_LENGTH if len(__matches_list) >= 7 else 4,
                 )
             )
 
@@ -147,10 +164,11 @@ def bet_combo_lists():
             match_groups_list=__random_teams_combination,
             browser_type="🔥 🔥 🔥 - FIREFOX",
         )
+
+        sign_out(driver=driver)
+        driver.quit()
+        del __teams_list
+        del __random_teams_combination
+        del driver
     except Exception as e:
         print(f"⚠️ ⚠️ ⚠️ Error in betting Splitted Lists: {e}")
-
-    driver.quit()
-    del __teams_list
-    del __random_teams_combination
-    del driver

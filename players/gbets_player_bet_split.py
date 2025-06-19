@@ -10,6 +10,7 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.action_chains import ActionChains
 from betting.bet import bet_gbets, chunk_list
 import tempfile
 
@@ -49,6 +50,22 @@ def sign_in(driver):
     driver.find_element(
         By.XPATH, "//button[@type='submit']//span[contains(text(),'Sign In')]"
     ).click()
+
+
+def sign_out(driver):
+    # # Find and click the login button
+    __profile_button = driver.find_elements(
+        By.CSS_SELECTOR, ".v3-dropdown-trigger.profileInfo__circleButton"
+    )
+    if len(__profile_button) == 0:
+        pass
+    ActionChains(driver).move_to_element(__profile_button[0]).perform()
+    time.sleep(3)
+    __logout = driver.find_elements(By.XPATH, "//div[normalize-space(text())='Logout']")
+    if len(__logout) == 0:
+        return
+    __logout[0].click()
+    time.sleep(5)
 
 
 def navigate_to_sports(driver):
@@ -113,11 +130,11 @@ def bet_splitted_lists():
         __chunked_matches_lists = list(
             chunk_list(
                 __teams_list,
-                chunk_size=(MATCHES_CHUNK_LENGTH if len(__teams_list) >= MINIMUM_TEAMS else 3),
+                chunk_size=(
+                    MATCHES_CHUNK_LENGTH if len(__teams_list) >= MINIMUM_TEAMS else 3
+                ),
             )
         )
-
-        __match_groups_length = len(__chunked_matches_lists)
 
     if len(__chunked_matches_lists) == 0:
         driver.quit()
@@ -126,16 +143,17 @@ def bet_splitted_lists():
     try:
         print(f"🧩 🧩 🧩 Total Teams: {len(__teams_list)}")
         print(f"🧩 🧩 🧩 Total Match Groups: {len(__chunked_matches_lists)}")
-        
+
         bet_gbets(
             driver=driver,
             match_groups_list=__chunked_matches_lists,
             browser_type="🔥 🔥 🔥 - FIREFOX",
         )
+
+        # sign out of the platform
+        sign_out(driver=driver)
+        driver.quit()
+        del driver
+        del __teams_list
     except Exception as e:
         print(f"⚠️ ⚠️ ⚠️ Error in betting Splitted Lists: {e}")
-        raise
-
-    driver.quit()
-    del driver
-    del __teams_list

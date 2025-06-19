@@ -12,21 +12,27 @@ if __name__ == "__main__":
                 with open("data/teams.canbet.data", "r") as __file:
                     __can_bet = __file.readline()
                     if __can_bet.strip() == "True":
-                        print(f"\r[ {time.strftime('%Y-%m-%d %H:%M:%S')} ] CAN BET??? {__can_bet.strip()}", end="")
+                        print(
+                            f"\r[ {time.strftime('%Y-%m-%d %H:%M:%S')} ] CAN BET??? {__can_bet.strip() + ' ' *10}",
+                            end="",
+                        )
                         break
                     __file.close()
-                print(f"\r[ {time.strftime('%Y-%m-%d %H:%M:%S')} ] CAN BET??? {__can_bet.strip()}", end="")
+                print(
+                    f"\r[ {time.strftime('%Y-%m-%d %H:%M:%S')} ] CAN BET??? {__can_bet.strip() + ' ' *10}",
+                    end="",
+                )
                 time.sleep(2)
-                    
+
             bet_split.bet_splitted_lists()
             print(
                 f"[ {time.strftime('%Y-%m-%d %H:%M:%S')} ] Waiting for the next split round... in {__WAIT_PERIOD // 60} minutes."
             )
-            
+
             # clear split
             with open("data/teams.split.data", "w") as __file:
                 __file.close()
-                
+
             # Sleep to avoid rapid looping
             time.sleep(__WAIT_PERIOD)
         except Exception as e:

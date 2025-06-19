@@ -29,15 +29,13 @@ options.set_preference("privacy.sanitize.sanitizeOnShutdown", True)
 def sign_in(driver):
     # # Find and click the login button
     WebDriverWait(driver, DRIVER_WAIT_PERIOD).until(
-        EC.element_to_be_clickable(
-            (By.XPATH, "//span[normalize-space()='Sign In']"))
+        EC.element_to_be_clickable((By.XPATH, "//span[normalize-space()='Sign In']"))
     ).click()
 
     WebDriverWait(driver, DRIVER_WAIT_PERIOD).until(
         EC.element_to_be_clickable((By.XPATH, "//input[@id='username']"))
     ).send_keys("priska.phahla@gmail.com")
-    driver.find_element(
-        By.XPATH, "//input[@id='password']").send_keys("201200xXx")
+    driver.find_element(By.XPATH, "//input[@id='password']").send_keys("201200xXx")
     driver.find_element(
         By.XPATH, "//button[@type='submit']//span[contains(text(),'Sign In')]"
     ).click()
@@ -48,8 +46,7 @@ def navigate_to_sports(driver):
     time.sleep(3)
     WebDriverWait(driver, DRIVER_WAIT_PERIOD).until(
         EC.element_to_be_clickable(
-            (By.XPATH,
-             "//a[contains(@class,'center') and contains(., 'Sport')]")
+            (By.XPATH, "//a[contains(@class,'center') and contains(., 'Sport')]")
         )
     ).click()
 
@@ -57,33 +54,27 @@ def navigate_to_sports(driver):
     time.sleep(3)
     if is_live_sports:
         WebDriverWait(driver, DRIVER_WAIT_PERIOD).until(
-            EC.element_to_be_clickable(
-                (By.XPATH, "//a[normalize-space()='Live']"))
+            EC.element_to_be_clickable((By.XPATH, "//a[normalize-space()='Live']"))
         ).click()
 
     # click today
     else:
         WebDriverWait(driver=driver, timeout=DRIVER_WAIT_PERIOD).until(
-            EC.element_to_be_clickable(
-                (By.XPATH, "//div[@data-testid='today']"))
+            EC.element_to_be_clickable((By.XPATH, "//div[@data-testid='today']"))
         ).click()
 
     # wait for e-sport games to load
     WebDriverWait(driver=driver, timeout=DRIVER_WAIT_PERIOD).until(
-        EC.element_to_be_clickable(
-            (By.XPATH, "//div[@data-testid='e-sport-game']"))
+        EC.element_to_be_clickable((By.XPATH, "//div[@data-testid='e-sport-game']"))
     )
 
     # wait for the e-sport games to load
     __left_sidebar = WebDriverWait(driver=driver, timeout=DRIVER_WAIT_PERIOD).until(
-        EC.visibility_of_element_located(
-            (By.ID, "prematch-left-sidebar-wrapper"))
+        EC.visibility_of_element_located((By.ID, "prematch-left-sidebar-wrapper"))
     )
 
     # Locate the last child of the wrapper
-    last_child = __left_sidebar.find_elements(By.XPATH, "./*")[
-        -1
-    ]
+    last_child = __left_sidebar.find_elements(By.XPATH, "./*")[-1]
 
     # Scroll smoothly to the last child
     driver.execute_script(
@@ -99,9 +90,7 @@ def navigate_to_sports(driver):
     # wait for the e-sport games to load
     # get the e-sport live games
     time.sleep(DRIVER_WAIT_PERIOD)
-    __get_e_games = driver.find_elements(
-        By.XPATH, "//div[@data-testid='e-sport-game']"
-    )
+    __get_e_games = driver.find_elements(By.XPATH, "//div[@data-testid='e-sport-game']")
 
     return __get_e_games
 
@@ -117,7 +106,10 @@ def get_teams():
     driver.fullscreen_window()
 
     # login to the website
-    sign_in(driver)
+    try:
+        sign_in(driver)
+    except:
+        pass
 
     # get the live e-sport games
     __get_e_games = navigate_to_sports(driver)
@@ -130,8 +122,7 @@ def get_teams():
                 if len(__get_e_games) < MINIMUM_GAMES:
                     break
 
-                __teams = _game.find_elements(
-                    By.CLASS_NAME, "comp__teamName__wrapper")
+                __teams = _game.find_elements(By.CLASS_NAME, "comp__teamName__wrapper")
                 if len(__teams) == 0:
                     continue
 
