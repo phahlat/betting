@@ -1,7 +1,6 @@
 import time
 import os
-import math
-import random
+from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -16,8 +15,8 @@ import tempfile
 
 os.system("clear")
 is_live_sports = True
-MINIMUM_TEAMS = 10
-MATCHES_CHUNK_LENGTH = 7
+MINIMUM_TEAMS = 12
+MATCHES_CHUNK_LENGTH = 8
 DRIVER_WAIT_PERIOD = 60
 DRIVER_WAIT_FOR_BROWSER_LOAD_PERIOD = 10
 
@@ -99,11 +98,15 @@ def navigate_to_sports(driver):
         By.XPATH, "//div[@data-testid='e-sport-game']"
     )
 
+    # Set the title via JavaScript
+    driver.execute_script("document.title = 'BET SPLIT';")
+
     return __e_sport_live_games
 
 
 def bet_splitted_lists():
     __teams_list = []
+    __chunked_matches_lists = []
 
     # Launch the browser
     driver = webdriver.Firefox(options=options)
@@ -124,25 +127,102 @@ def bet_splitted_lists():
 
     # get the live e-sport games
     navigate_to_sports(driver)
-
+    print(f"[ {datetime.now()} ] -- Read Data")
     with open("data/teams.split.data", "r") as __file:
         __teams_list = [team.strip() for team in __file.readlines() if team.strip()]
-        __chunked_matches_lists = list(
-            chunk_list(
-                __teams_list,
-                chunk_size=(
-                    MATCHES_CHUNK_LENGTH if len(__teams_list) >= MINIMUM_TEAMS else 3
-                ),
+
+        __first_half_teams = [
+            s.split("|")[0]
+            for s in __teams_list
+            if "1st Half".lower() in str(s).lower()
+        ]
+
+        __second_half_teams = [
+            s.split("|")[0]
+            for s in __teams_list
+            if "2nd Half".lower() in str(s).lower()
+            or "3rd Half".lower() in str(s).lower()
+            or "4th Half".lower() in str(s).lower()
+        ]
+
+        __half_time_teams = [
+            s.split("|")[0]
+            for s in __teams_list
+            if "Half Time".lower() in str(s).lower()
+        ]
+
+        __not_started_teams = [
+            s.split("|")[0]
+            for s in __teams_list
+            if "Not Started".lower() in str(s).lower()
+        ]
+
+        print(f"[ {datetime.now()} ] -- Create Chunks")
+        if len(__first_half_teams):
+            __chunked_matches_lists = __chunked_matches_lists + (
+                list(
+                    chunk_list(
+                        __first_half_teams,
+                        chunk_size=(
+                            MATCHES_CHUNK_LENGTH
+                            if len(__teams_list) >= MINIMUM_TEAMS
+                            else 3
+                        ),
+                    )
+                )
             )
-        )
+
+        if len(__second_half_teams):
+            __chunked_matches_lists = __chunked_matches_lists + (
+                list(
+                    chunk_list(
+                        __second_half_teams,
+                        chunk_size=(
+                            MATCHES_CHUNK_LENGTH
+                            if len(__teams_list) >= MINIMUM_TEAMS
+                            else 3
+                        ),
+                    )
+                )
+            )
+
+        if len(__half_time_teams):
+            __chunked_matches_lists = __chunked_matches_lists + (
+                list(
+                    chunk_list(
+                        __half_time_teams,
+                        chunk_size=(
+                            MATCHES_CHUNK_LENGTH
+                            if len(__teams_list) >= MINIMUM_TEAMS
+                            else 3
+                        ),
+                    )
+                )
+            )
+
+        if len(__not_started_teams):
+            __chunked_matches_lists = __chunked_matches_lists + (
+                list(
+                    chunk_list(
+                        __not_started_teams,
+                        chunk_size=(
+                            MATCHES_CHUNK_LENGTH
+                            if len(__teams_list) >= MINIMUM_TEAMS
+                            else 3
+                        ),
+                    )
+                )
+            )
 
     if len(__chunked_matches_lists) == 0:
         driver.quit()
         return
 
     try:
-        print(f"🧩 🧩 🧩 Total Teams: {len(__teams_list)}")
-        print(f"🧩 🧩 🧩 Total Match Groups: {len(__chunked_matches_lists)}")
+        print(f"[ {datetime.now()} ] -- Total Teams: {len(__teams_list)}")
+        print(
+            f"[ {datetime.now()} ] -- Total Match Groups: {len(__chunked_matches_lists)}"
+        )
 
         bet_gbets(
             driver=driver,
@@ -151,7 +231,11 @@ def bet_splitted_lists():
         )
 
         # sign out of the platform
-        sign_out(driver=driver)
+        try:
+            sign_out(driver=driver)
+        except:
+            pass
+
         driver.quit()
         del driver
         del __teams_list

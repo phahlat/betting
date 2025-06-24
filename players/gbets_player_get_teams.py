@@ -5,6 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.action_chains import ActionChains
 import tempfile
 
 os.system("clear")
@@ -39,6 +40,22 @@ def sign_in(driver):
     driver.find_element(
         By.XPATH, "//button[@type='submit']//span[contains(text(),'Sign In')]"
     ).click()
+
+
+def sign_out(driver):
+    # # Find and click the login button
+    __profile_button = driver.find_elements(
+        By.CSS_SELECTOR, ".v3-dropdown-trigger.profileInfo__circleButton"
+    )
+    if len(__profile_button) == 0:
+        pass
+    ActionChains(driver).move_to_element(__profile_button[0]).perform()
+    time.sleep(3)
+    __logout = driver.find_elements(By.XPATH, "//div[normalize-space(text())='Logout']")
+    if len(__logout) == 0:
+        return
+    __logout[0].click()
+    time.sleep(5)
 
 
 def navigate_to_sports(driver):
@@ -84,12 +101,8 @@ def navigate_to_sports(driver):
         last_child,
     )
 
-    # driver.execute_script("arguments[0].style.scrollBehavior = 'smooth';arguments[0].scrollTop = arguments[0].scrollHeight;", __left_sidebar)
-    print("Scrolling to the bottom of the left sidebar to load all e-sport games...")
-
-    # wait for the e-sport games to load
     # get the e-sport live games
-    time.sleep(DRIVER_WAIT_PERIOD)
+    time.sleep(15)
     __get_e_games = driver.find_elements(By.XPATH, "//div[@data-testid='e-sport-game']")
 
     return __get_e_games
@@ -103,7 +116,7 @@ def get_teams():
     driver.get("https://www.gbets.co.ls/")
     driver.execute_script("document.body.style.zoom='80%'")
     driver.set_window_position(10, -1280)  # x=1920
-    driver.fullscreen_window()
+    driver.maximize_window()
 
     # login to the website
     try:
@@ -120,27 +133,36 @@ def get_teams():
         with open("data/teams.combo.data", "w") as __combo_teams_file:
             for _game in __get_e_games:
                 if len(__get_e_games) < MINIMUM_GAMES:
-                    break
+                    pass
 
+                # find teams
                 __teams = _game.find_elements(By.CLASS_NAME, "comp__teamName__wrapper")
                 if len(__teams) == 0:
                     continue
 
+                # get time of match
+                # get goals at the time
+                __time = _game.find_element(By.CSS_SELECTOR, "div.custom__row")
+
                 # write split
                 print(
-                    f"{__teams[0].text}:{__teams[1].text if len(__teams) == 2 else 'OTHER'}",
+                    f"{__teams[0].text}:{__teams[1].text if len(__teams) == 2 else 'OTHER'}|{__time.text}",
                     file=__split_teams_file,
                 )
 
                 # write combo
                 print(
-                    f"{__teams[0].text}:{__teams[1].text if len(__teams) == 2 else 'OTHER'}",
+                    f"{__teams[0].text}:{__teams[1].text if len(__teams) == 2 else 'OTHER'}|{__time.text}",
                     file=__combo_teams_file,
                 )
 
         __combo_teams_file.close()
         __split_teams_file.close()
 
+        try:
+            sign_out(driver=driver)
+        except:
+            pass
         print(f"⚽️ ⚽️ ⚽️ Done!!!\n")
 
     driver.quit()

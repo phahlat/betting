@@ -18,7 +18,8 @@ import tempfile
 os.system("clear")
 is_live_sports = True
 # GET GAMES LIST
-TEAMS_COMBINATIONS_LENGTH = 7
+MINIMUM_TEAMS = 12
+TEAMS_COMBINATIONS_LENGTH = 8
 MATCHES_MAX_COMBINATIONS_LENGTH = 100
 DRIVER_WAIT_PERIOD = 60
 DRIVER_WAIT_FOR_BROWSER_LOAD_PERIOD = 10
@@ -100,12 +101,16 @@ def navigate_to_sports(driver: webdriver.Firefox):
         By.XPATH, "//div[@data-testid='e-sport-game']"
     )
 
+    # Set the title via JavaScript
+    driver.execute_script("document.title = 'BET COMBO';")
+
     return __e_sport_live_games
 
 
 def bet_combo_lists():
     __teams_list = []
     __random_teams_combination = []
+    __match_combinations = []
 
     # Launch the browser
     driver = webdriver.Firefox(options=options)
@@ -128,47 +133,170 @@ def bet_combo_lists():
     navigate_to_sports(driver)
 
     with open("data/teams.combo.data", "r") as __file:
-        __matches_list = [team.strip() for team in __file.readlines() if team.strip()]
+        __teams_list = [team.strip() for team in __file.readlines() if team.strip()]
+
+        __first_half_teams = [
+            s.split("|")[0]
+            for s in __teams_list
+            if "1st Half".lower() in str(s).lower()
+        ]
+
+        __second_half_teams = [
+            s.split("|")[0]
+            for s in __teams_list
+            if "2nd Half".lower() in str(s).lower()
+            or "3rd Half".lower() in str(s).lower()
+            or "4th Half".lower() in str(s).lower()
+        ]
+
+        __half_time_teams = [
+            s.split("|")[0]
+            for s in __teams_list
+            if "Half Time".lower() in str(s).lower()
+        ]
+
+        __not_started_teams = [
+            s.split("|")[0]
+            for s in __teams_list
+            if "Not Started".lower() in str(s).lower()
+        ]
+
         # Generate all combinations of half the available matches
-        if len(__matches_list) > 4:
-            __match_combinations = list(
+        if len(__first_half_teams) >= 4:
+            __first_half_teams = list(
                 combinations(
-                    __matches_list,
-                    TEAMS_COMBINATIONS_LENGTH if len(__matches_list) >= 7 else 4,
+                    __first_half_teams,
+                    (
+                        TEAMS_COMBINATIONS_LENGTH
+                        if len(__first_half_teams) >= MINIMUM_TEAMS
+                        else 3
+                    ),
                 )
             )
+            print(
+                f"🧩 🧩 🧩 First Half: Total Teams Matches Combinations: {len(__first_half_teams):<5}"
+            )
 
-            __random_teams_combination = random.sample(
-                population=__match_combinations,
+            __first_half_teams = random.sample(
+                population=__first_half_teams,
                 k=(
-                    len(__match_combinations)
-                    if len(__match_combinations) < MATCHES_MAX_COMBINATIONS_LENGTH
+                    len(__first_half_teams)
+                    if len(__first_half_teams) < MATCHES_MAX_COMBINATIONS_LENGTH
                     else MATCHES_MAX_COMBINATIONS_LENGTH
                 ),
             )
-            __random_teams_combination = __random_teams_combination
-
+            __match_combinations = __match_combinations + __first_half_teams
         else:
-            __random_teams_combination = [__matches_list]
+            __match_combinations = __match_combinations + __first_half_teams
 
-        print(f"🧩 🧩 🧩 Total Teams Matches Combinations: {len(__teams_list):<5}")
+        if len(__second_half_teams) >= 4:
+            __second_half_teams = list(
+                combinations(
+                    __second_half_teams,
+                    (
+                        TEAMS_COMBINATIONS_LENGTH
+                        if len(__second_half_teams) >= MINIMUM_TEAMS
+                        else 3
+                    ),
+                )
+            )
+            print(
+                f"🧩 🧩 🧩  Second Half: Total Teams Matches Combinations: {len(__second_half_teams):<5}"
+            )
 
-    if len(__random_teams_combination) == 0:
-        print("🧩 🧩 🧩 No E-Sports Teams Matches Found. Exiting...")
+            __second_half_teams = random.sample(
+                population=__second_half_teams,
+                k=(
+                    len(__second_half_teams)
+                    if len(__second_half_teams) < MATCHES_MAX_COMBINATIONS_LENGTH
+                    else MATCHES_MAX_COMBINATIONS_LENGTH
+                ),
+            )
+            __match_combinations = __match_combinations + __second_half_teams
+        else:
+            __match_combinations = __match_combinations + __second_half_teams
+
+        if len(__half_time_teams) >= 4:
+            __half_time_teams = list(
+                combinations(
+                    __half_time_teams,
+                    (
+                        TEAMS_COMBINATIONS_LENGTH
+                        if len(__half_time_teams) >= MINIMUM_TEAMS
+                        else 3
+                    ),
+                )
+            )
+
+            __half_time_teams = random.sample(
+                population=__half_time_teams,
+                k=(
+                    len(__half_time_teams)
+                    if len(__half_time_teams) < MATCHES_MAX_COMBINATIONS_LENGTH
+                    else MATCHES_MAX_COMBINATIONS_LENGTH
+                ),
+            )
+            __match_combinations = __match_combinations + __half_time_teams
+        else:
+            __match_combinations = __match_combinations + __half_time_teams
+
+        if len(__not_started_teams) >= 4:
+            __not_started_teams = list(
+                combinations(
+                    __not_started_teams,
+                    (
+                        TEAMS_COMBINATIONS_LENGTH
+                        if len(__not_started_teams) >= MINIMUM_TEAMS
+                        else 3
+                    ),
+                )
+            )
+            print(
+                f"🧩 🧩 🧩 Not Started: Total Teams Matches Combinations: {len(__not_started_teams):<5}"
+            )
+
+            __not_started_teams = random.sample(
+                population=__not_started_teams,
+                k=(
+                    len(__not_started_teams)
+                    if len(__not_started_teams) < MATCHES_MAX_COMBINATIONS_LENGTH
+                    else MATCHES_MAX_COMBINATIONS_LENGTH
+                ),
+            )
+
+            __match_combinations = __match_combinations + __not_started_teams
+        else:
+            __match_combinations = __match_combinations + __not_started_teams
+
+        # print(f"🎳 🎳 🎳 --- Total Teams Matches: {len(__match_combinations):<5}")
+        print(f"🧩 🧩 🧩 --- Total Combinations: {len(__match_combinations):<5}")
+
+    if len(__match_combinations) == 0:
+        try:
+            sign_out(driver=driver)
+        except:
+            pass
+
         driver.quit()
         return
 
     try:
         bet_gbets(
             driver=driver,
-            match_groups_list=__random_teams_combination,
+            match_groups_list=__match_combinations,
             browser_type="🔥 🔥 🔥 - FIREFOX",
         )
 
-        sign_out(driver=driver)
+        try:
+            sign_out(driver=driver)
+        except:
+            pass
+
         driver.quit()
         del __teams_list
         del __random_teams_combination
         del driver
+
     except Exception as e:
-        print(f"⚠️ ⚠️ ⚠️ Error in betting Splitted Lists: {e}")
+        driver.quit()
+        del driver
