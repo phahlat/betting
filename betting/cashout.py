@@ -145,7 +145,7 @@ def withdraw_cashout(driver, btn_cashout, cash, row, is_low_return: bool = True)
             if len(__partial_pay_radio) == 0:
                 return
             __partial_pay_radio[0].click()
-            time.sleep(2)
+            time.sleep(1)
 
             # find partial cashout input box and send keys
             print(f"[ {datetime.now()} ] -------- Send Input Partial Cashout")
@@ -157,11 +157,8 @@ def withdraw_cashout(driver, btn_cashout, cash, row, is_low_return: bool = True)
             __bagged = __cashout
             __partial_pay_input.clear()
             __partial_pay_input.send_keys(__cashout)
-            time.sleep(2)
-
-            if float(__cashout) == 1.0:
-                raise Exception(f"Cashout below required amount")
-
+            # time.sleep(2)
+            
         # Wait for and click the button that contains the text 'Cash Out'
         print(f"[ {datetime.now()} ] -------- Click Cashout Button")
         WebDriverWait(driver=driver, timeout=__DRIVER_WAIT_PERIOD).until(
@@ -172,60 +169,56 @@ def withdraw_cashout(driver, btn_cashout, cash, row, is_low_return: bool = True)
                 )
             )
         ).click()
+        time.sleep(5)
 
         try:
-            # wait for the proceed modal to appear
-            # time.sleep(5)
-            WebDriverWait(driver=driver, timeout=__DRIVER_WAIT_PERIOD).until(
-                EC.element_to_be_clickable(
-                    (
-                        By.XPATH,
-                        "//*[normalize-space(text())='Proceed']",
-                    )
+            __proceed_button = driver.find_elements(By.XPATH,"//*[normalize-space(text())='Proceed']")
+            if len(__proceed_button):
+                __proceed_button[0].click()
+                time.sleep(2)
+                
+                print(f"[ {datetime.now()} ] -------- Clicked Proceed")
+                print(
+                    f"[ {datetime.now()} ] 💼 💼 💼 Proceeded to Bag: {row:>5} | 💸 💸 💸 WIN: {__bagged:>5}"
                 )
-            ).click()
-
-            print(
-                f"[ {datetime.now()} ] 💼 💼 💼 Proceeded to Bag: {row:>5} | 💸 💸 💸 WIN: {__bagged:>5}"
-            )
-            time.sleep(5)
         except:
             pass
 
         # confirm cashout
-        print(f"[ {datetime.now()} ] -------- Click Confirm Cashout Button")
-        WebDriverWait(driver=driver, timeout=__DRIVER_WAIT_PERIOD).until(
-            EC.element_to_be_clickable(
-                (
-                    By.XPATH,
-                    "//button[contains(@class, 'v3-btn') and .//span[normalize-space(text())='OK']]",
-                )
-            )
-        ).click()
+        print(f"[ {datetime.now()} ] -------- Click Ok")
+        time.sleep(2)
+        __okay_button = driver.find_elements(By.XPATH, "//button[contains(@class, 'v3-btn') and .//span[normalize-space(text())='OK']]")
+        if not len(__okay_button):
+            raise Exception("No Okay Button Found")
+        __okay_button[0].click()
+        
         print(
             f"[ {datetime.now()} ] 💼 💼 💼 Bagged: {row:>5} | 💸 💸 💸 WIN: {__bagged:>5}"
         )
-        time.sleep(5)
+        time.sleep(2)
         return
     except:
         print(f"[ {datetime.now()} ] -------- Click Cancel Button")
-        WebDriverWait(driver=driver, timeout=__DRIVER_WAIT_PERIOD).until(
-            EC.element_to_be_clickable(
-                (
-                    By.XPATH,
-                    "//button[contains(@class, 'v3-btn') and .//span[normalize-space(text())='Cancel']]",
-                )
-            )
-        ).click()
+        __cancel_cashout = driver.find_elements(By.XPATH,"//button[contains(@class, 'v3-btn') and .//span[normalize-space(text())='Cancel']]")
+        if len(__cancel_cashout):
+            __cancel_cashout[0].click()
+            time.sleep(3)
+            
+        else:
+            # will come here if cashed-out or failed and can't find ok button
+            __modal_close = driver.find_elements(By.CLASS_NAME, "custom__modalClose")
+            if len(__modal_close):
+                __modal_close[0].click()
+            time.sleep(3)
         print(
             f"[ {datetime.now()} ] 😩 😩 😩 Canceled: {row:>5} | ❌ ❌ ❌ LOSS: {__bagged:>5}"
         )
-        time.sleep(5)
 
 
 def gbets_cashout():
-    __POSSIBLE_WIN_LOWER_BOUND = 5
-    __POSSIBLE_WIN_MEDIAN = 30
+    __MINIMUM_CASHOUT_BASE = 0.10
+    __POSSIBLE_WIN_LOWER_BOUND = 10
+    __POSSIBLE_WIN_MEDIAN = 40
     __POSSIBLE_WIN_UPPER_BOUND = 100
 
     # Launch the browser
@@ -279,7 +272,6 @@ def gbets_cashout():
             ".//span[@class='betHistory__bonus-stake-style']",
         )
 
-        print(f" --- {len(__stake_element)}")
         # possible cashout
         if not len(__possible_cashout_elements) or not len(__cashout_money_elements):
             continue
@@ -294,10 +286,10 @@ def gbets_cashout():
 
         __stake = float(__stake_element[0].text.split(" ")[-1])
 
-        if __cashout_money >= __stake:
-            print(
-                f"[[ 🧮 🧮 🧮 ]] [ {datetime.now()} ] Row: {i:<3} | Stake: {__stake} | Possible Cashout: {__possible_cashout:>3} | Cashout Money: {__cashout_money:>3}"
-            )
+        # if __cashout_money >= __stake:
+        print(
+            f"[[ 🧮 🧮 🧮 ]] [ {datetime.now()} ] Row: {i:<3} | Stake: {__stake} | Possible Cashout: {__possible_cashout:>3} | Cashout Money: {__cashout_money:>3}"
+        )
 
         # Check if cashout money and possible cashout meet the criteria
         if (
@@ -351,7 +343,7 @@ def gbets_cashout():
                 f"[ {datetime.now()} ] 🚛 🚛 🚛 Big Win: {i:<3} | Possible Cashout: {__possible_cashout:>5} | Cashout Money: LSL{__cashout_money:>5}"
             )
 
-        elif __cashout_money >= __stake:
+        elif __cashout_money >= __MINIMUM_CASHOUT_BASE:
             time.sleep(2)
             withdraw_cashout(
                 btn_cashout=__cashout_money_elements[0].find_element(
@@ -365,9 +357,6 @@ def gbets_cashout():
             print(
                 f"[ {datetime.now()} ] 🔻 🔻 🔻 Lowest Win: {i:<3} | Possible Cashout: {__possible_cashout:>5} | From: LSL{__cashout_money:>5}"
             )
-
-        else:
-            pass
 
         del __possible_cashout_elements
         del __possible_cashout
