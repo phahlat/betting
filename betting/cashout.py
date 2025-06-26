@@ -198,7 +198,7 @@ def withdraw_cashout(driver, btn_cashout, cash, row, is_low_return: bool = True)
         )
         if not len(__okay_button):
             # raise
-            # raise Exception("No Okay Button Found")
+            raise Exception("No Okay Button Found")
         __okay_button[0].click()
 
         print(
