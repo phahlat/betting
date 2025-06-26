@@ -146,13 +146,13 @@ def get_teams():
 
                 # write split
                 print(
-                    f"{__teams[0].text}:{__teams[1].text if len(__teams) == 2 else 'OTHER'}|{__time.text}",
+                    f"{__teams[0].text.strip()}:{__teams[1].text.strip() if len(__teams) == 2 else 'OTHER'}|{__time.text.strip()}",
                     file=__split_teams_file,
                 )
 
                 # write combo
                 print(
-                    f"{__teams[0].text}:{__teams[1].text if len(__teams) == 2 else 'OTHER'}|{__time.text}",
+                    f"{__teams[0].text.strip()}:{__teams[1].text.strip() if len(__teams) == 2 else 'OTHER'}|{__time.text.strip()}",
                     file=__combo_teams_file,
                 )
 

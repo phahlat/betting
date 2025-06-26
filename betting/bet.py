@@ -35,8 +35,8 @@ def remove_suspended(driver):
             print(
                 f"⏳ ⏳ ⏳ --- {datetime.now()} - Found suspended bets: {len(__suspended_bets_third_parent)}"
             )
+
             for __parent in __suspended_bets_third_parent:
-                print(f"{__parent.get_attribute('class')}")
                 __delete_bet = __parent.find_elements(
                     By.XPATH, ".//span[contains(@class, 'betslip__bet-delete')]"
                 )
@@ -45,17 +45,19 @@ def remove_suspended(driver):
                         f"⏳ ⏳ ⏳ --- {datetime.now()} - No delete button found for suspended bet. {__delete_bet.get_attribute('class')}"
                     )
                     continue
+
                 else:
                     print(f"⏳ ⏳ ⏳ --- {datetime.now()} - Deleting suspended bet.")
                     __delete_bet[0].click()
+
     except Exception as e:
-        raise
+        pass
 
     time.sleep(INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
 
 
 def bet_gbets(driver, match_groups_list, browser_type="CHROME"):
-    time.sleep(10)
+    # time.sleep(10)
 
     # loop match groups
     __match_groups_list_length = len(match_groups_list)
@@ -66,20 +68,28 @@ def bet_gbets(driver, match_groups_list, browser_type="CHROME"):
         __bet_done = False
         __match_not_started = False
 
+        print(f"\nTG:: \n{__teams_group}\n\n")
+
         # loop teams in a match group
         __teams_group_length = len(__teams_group)
-        print(
-            f"{browser_type} --- [ {datetime.now()} ] 🎳 🎳 🎳 GROUP NUMBER: {__group_number+1}/{__match_groups_list_length:<3}: Matches Length: {len(__teams_group)} "
-        )
+        if __teams_group_length == 0:
+            continue
 
         __team_wrapper = None
         for __team_number, __match in enumerate(__teams_group, 0):
+            print(
+                f"{browser_type} --- [ {datetime.now()} ] 🎳 🎳 🎳 GROUP NUMBER: {__group_number+1}/{__match_groups_list_length:<3}: Matches Length: {len(__teams_group)} "
+            )
+
             # reset variables
             __team_one, __team_two = __match.split(":")
             __clicked_element = None
 
             try:
                 # FIND TEAM
+                print(
+                    f"{browser_type} --- [ {datetime.now()} ] 🎳 🎳 🎳 find team:: {__team_one.strip()} vs {__team_two.strip()}"
+                )
                 __team_wrapper = driver.find_element(
                     By.XPATH,
                     f"//div[contains(@class, 'gamesWrapper')]//div[contains(@class, 'comp__teamName__wrapper') and contains(., \"{__team_one.strip()}\")]",
@@ -87,6 +97,9 @@ def bet_gbets(driver, match_groups_list, browser_type="CHROME"):
 
                 # SCROLL TO TEAM
                 try:
+                    print(
+                        f"{browser_type} --- [ {datetime.now()} ] 🎳 🎳 🎳 bring team into view:: {__team_one.strip()} vs {__team_two.strip()}"
+                    )
                     driver.execute_script(
                         "arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});",
                         __team_wrapper,
@@ -95,6 +108,9 @@ def bet_gbets(driver, match_groups_list, browser_type="CHROME"):
                     pass
 
                 # Match Result Odds
+                print(
+                    f"{browser_type} --- [ {datetime.now()} ] 🎳 🎳 🎳 find team odds:: {__team_one.strip()} vs {__team_two.strip()}"
+                )
                 __second_parent = __team_wrapper.find_element(
                     By.XPATH, "./ancestor::*[2]"
                 )
@@ -121,6 +137,9 @@ def bet_gbets(driver, match_groups_list, browser_type="CHROME"):
                 __draw_odds = float(__match_odds[1].text)
                 __away_odds = float(__match_odds[2].text)
 
+                print(
+                    f"{browser_type} --- [ {datetime.now()} ] 🎳 🎳 🎳 find team goals:: {__team_one.strip()} vs {__team_two.strip()}"
+                )
                 __third_ancestor = __team_wrapper.find_element(
                     By.XPATH, "./ancestor::*[3]"
                 )
@@ -189,6 +208,9 @@ def bet_gbets(driver, match_groups_list, browser_type="CHROME"):
 
                 # time.sleep(INTERACTIVE_ELEMENT_WAIT_PERIOD_10S)
                 time.sleep(INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
+                print(
+                    f"{browser_type} --- [ {datetime.now()} ] 🎳 🎳 🎳 vetting on winning chances:: {__team_one.strip()} vs {__team_two.strip()}"
+                )
                 if __home_leading and __away_odds - __home_odds >= 0.5:
                     # choose home win
                     __bet_done = True
@@ -273,10 +295,10 @@ def bet_gbets(driver, match_groups_list, browser_type="CHROME"):
                 time.sleep(5)
             except Exception as _e:
                 print(
-                    f"\n-----------------------------\n{_e}\n-----------------------------\n"
+                    f"{browser_type} --- [ {datetime.now()} ] 🎳 🎳 🎳 Errored on betting:: {__team_one.strip()} vs {__team_two.strip()}"
                 )
                 print(
-                    f"{browser_type} --- [ {datetime.now()} ] 🔜  🔜  🔜 GROUP NUMBER: {__group_number+1} | TEAM: {__team_number+1}/{__teams_group_length:<3} | SKIPPING --- @{__match}\n\n"
+                    f"{browser_type} --- [ {datetime.now()} ] 🔜  🔜  🔜 SKIP GROUP NUMBER: {__group_number+1} | TEAM: {__team_number+1}/{__teams_group_length:<3} | SKIPPING --- @{__match}\n\n"
                 )
                 __clicked_element.click() if __clicked_element else None
                 del __clicked_element
@@ -310,10 +332,21 @@ def bet_gbets(driver, match_groups_list, browser_type="CHROME"):
                 remove_suspended(driver)
 
                 # click place bet
-                driver.find_element(
+                __place_bet = driver.find_element(
                     By.XPATH, "//button[@data-testid='place-bet']"
-                ).click()
-                time.sleep(30)
+                )
+                # SCROLL TO TEAM
+                try:
+                    driver.execute_script(
+                        "arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});",
+                        __place_bet,
+                    )
+                except:
+                    pass
+
+                time.sleep(2)
+                __place_bet.click()
+                time.sleep(20)
 
                 # wait for bet confirmation
                 __empty_bets = driver.find_elements(

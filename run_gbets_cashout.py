@@ -3,7 +3,7 @@ import time
 import os
 
 if __name__ == "__main__":
-    __WAIT_PERIOD = 60 * 2
+    __WAIT_PERIOD = 60 * 3
     while True:
         try:
             gbets_cashout()
