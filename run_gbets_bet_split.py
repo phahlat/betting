@@ -21,13 +21,14 @@ if __name__ == "__main__":
         bet_split.bet_splitted_lists()
 
         # clear split
-        with open("data/teams.split.data", "w") as __file:
-            __file.close()
+        # with open("data/teams.split.data", "w") as __file:
+        #     __file.close()
 
         # Sleep to avoid rapid looping
         print(f"[ {time.strftime('%Y-%m-%d %H:%M:%S')} ] Exit Split!")
         exit(0)
     except Exception as e:
+        # raise
         print(f"An error occurred: {e}")
         os.system("clear")  # Clear the console
         exit(0)

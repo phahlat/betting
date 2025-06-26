@@ -3,7 +3,7 @@ import time
 import os
 
 if __name__ == "__main__":
-    __WAIT_PERIOD = 60 * 3
+    __WAIT_PERIOD = 60 * 7
     while True:
         try:
             gbets_cashout()
@@ -13,6 +13,7 @@ if __name__ == "__main__":
 
             time.sleep(__WAIT_PERIOD)
         except Exception as e:
+            # raise
             print(f"An error occurred: {e}")
             os.system("clear")
-            raise
+            # raise

@@ -28,5 +28,6 @@ if __name__ == "__main__":
             __file.close()
 
         exit(0)
-    except:
-        raise
+    except Exception as _e:
+        # raise
+        print(f"Get Teams Exception:: {_e}")

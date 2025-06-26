@@ -17,7 +17,7 @@ user_data_dir = tempfile.mkdtemp()
 
 # Configure Chrome options
 options = Options()
-options.add_argument(f"--user-data-dir={user_data_dir}")
+options.add_argument(f"--user-data-dir=/Users/g0d/Workspace/projects/betting/tmp/")
 options.set_preference("browser.cache.disk.enable", False)
 options.set_preference("browser.cache.memory.enable", False)
 options.set_preference("browser.cache.offline.enable", False)
@@ -122,6 +122,7 @@ def get_teams():
     try:
         sign_in(driver)
     except:
+        # raise
         pass
 
     # get the live e-sport games
@@ -162,6 +163,7 @@ def get_teams():
         try:
             sign_out(driver=driver)
         except:
+            # raise
             pass
         print(f"⚽️ ⚽️ ⚽️ Done!!!\n")
 

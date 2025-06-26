@@ -11,13 +11,12 @@ HIGH_STAKE_MATCHES_COUNT = 2
 LOW_STAKE, HIGH_STAKE = 1, 1
 MINIMUM_TEAMS = 1
 DRIVER_WAIT_PERIOD = 30
-INTERACTIVE_ELEMENT_WAIT_PERIOD_3S = 3
-INTERACTIVE_ELEMENT_WAIT_PERIOD_10S = 10
+INTERACTIVE_ELEMENT_WAIT_PERIOD = 10
 
 
 def chunk_list(data: List[str], chunk_size: int) -> List[List[str]]:
     """Splits a list into chunks of specified size, keeping the remainder in the last chunk."""
-    return [data[i : i + chunk_size] for i in range(0, len(data), chunk_size)]
+    return [data[i: i + chunk_size] for i in range(0, len(data), chunk_size)]
 
 
 def remove_suspended(driver):
@@ -47,28 +46,32 @@ def remove_suspended(driver):
                     continue
 
                 else:
-                    print(f"⏳ ⏳ ⏳ --- {datetime.now()} - Deleting suspended bet.")
+                    print(
+                        f"⏳ ⏳ ⏳ --- {datetime.now()} - Deleting suspended bet.")
                     __delete_bet[0].click()
 
     except Exception as e:
+        # raise
         pass
 
-    time.sleep(INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
+    time.sleep(INTERACTIVE_ELEMENT_WAIT_PERIOD)
 
 
 def bet_gbets(driver, match_groups_list, browser_type="CHROME"):
-    # time.sleep(10)
+    time.sleep(10)
 
     # loop match groups
     __match_groups_list_length = len(match_groups_list)
     for __group_number, __teams_group in enumerate(match_groups_list, 0):
+        print(
+            f"\n{browser_type} --- [ {datetime.now()} ] 🎳 🎳 🎳 GROUP NUMBER: {__group_number+1}/{__match_groups_list_length:<3}: Matches Length: {len(__teams_group)} "
+        )
+
         __match_count = 0
         __home_leading = False
         __away_leading = False
         __bet_done = False
         __match_not_started = False
-
-        print(f"\nTG:: \n{__teams_group}\n\n")
 
         # loop teams in a match group
         __teams_group_length = len(__teams_group)
@@ -77,10 +80,6 @@ def bet_gbets(driver, match_groups_list, browser_type="CHROME"):
 
         __team_wrapper = None
         for __team_number, __match in enumerate(__teams_group, 0):
-            print(
-                f"{browser_type} --- [ {datetime.now()} ] 🎳 🎳 🎳 GROUP NUMBER: {__group_number+1}/{__match_groups_list_length:<3}: Matches Length: {len(__teams_group)} "
-            )
-
             # reset variables
             __team_one, __team_two = __match.split(":")
             __clicked_element = None
@@ -88,7 +87,7 @@ def bet_gbets(driver, match_groups_list, browser_type="CHROME"):
             try:
                 # FIND TEAM
                 print(
-                    f"{browser_type} --- [ {datetime.now()} ] 🎳 🎳 🎳 find team:: {__team_one.strip()} vs {__team_two.strip()}"
+                    f"{browser_type} --- [ {datetime.now()} ] 🎳 🎳 🎳  | TEAM: {__team_number+1}/{__teams_group_length:<3} | find team:: {__team_one.strip()} vs {__team_two.strip()}"
                 )
                 __team_wrapper = driver.find_element(
                     By.XPATH,
@@ -98,18 +97,19 @@ def bet_gbets(driver, match_groups_list, browser_type="CHROME"):
                 # SCROLL TO TEAM
                 try:
                     print(
-                        f"{browser_type} --- [ {datetime.now()} ] 🎳 🎳 🎳 bring team into view:: {__team_one.strip()} vs {__team_two.strip()}"
+                        f"{browser_type} --- [ {datetime.now()} ] 🎳 🎳 🎳 | TEAM: {__team_number+1}/{__teams_group_length:<3} | bring team into view:: {__team_one.strip()} vs {__team_two.strip()}"
                     )
                     driver.execute_script(
                         "arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});",
                         __team_wrapper,
                     )
                 except:
+                    # raise
                     pass
 
                 # Match Result Odds
                 print(
-                    f"{browser_type} --- [ {datetime.now()} ] 🎳 🎳 🎳 find team odds:: {__team_one.strip()} vs {__team_two.strip()}"
+                    f"{browser_type} --- [ {datetime.now()} ] 🎳 🎳 🎳 | TEAM: {__team_number+1}/{__teams_group_length:<3} | find team odds:: {__team_one.strip()} vs {__team_two.strip()}"
                 )
                 __second_parent = __team_wrapper.find_element(
                     By.XPATH, "./ancestor::*[2]"
@@ -138,7 +138,7 @@ def bet_gbets(driver, match_groups_list, browser_type="CHROME"):
                 __away_odds = float(__match_odds[2].text)
 
                 print(
-                    f"{browser_type} --- [ {datetime.now()} ] 🎳 🎳 🎳 find team goals:: {__team_one.strip()} vs {__team_two.strip()}"
+                    f"{browser_type} --- [ {datetime.now()} ] 🎳 🎳 🎳 | TEAM: {__team_number+1}/{__teams_group_length:<3} | find team goals:: {__team_one.strip()} vs {__team_two.strip()}"
                 )
                 __third_ancestor = __team_wrapper.find_element(
                     By.XPATH, "./ancestor::*[3]"
@@ -153,7 +153,8 @@ def bet_gbets(driver, match_groups_list, browser_type="CHROME"):
 
                 if str("1st half").lower() in str(__match_status.text).lower():
                     __goals = __statistics[0].split(":")
-                    __current_time = __statistics[-1].replace("`", "").split(" ")[-1]
+                    __current_time = __statistics[-1].replace(
+                        "`", "").split(" ")[-1]
 
                     __goals = __statistics[0].split(":")
                     if int(__goals[0]) - int(__goals[1]) >= 2:
@@ -184,7 +185,8 @@ def bet_gbets(driver, match_groups_list, browser_type="CHROME"):
                     or str("4th half").lower() in str(__match_status.text).lower()
                 ):
                     __goals = __statistics[0].split(":")
-                    __current_time = __statistics[-1].replace("`", "").split(" ")[-1]
+                    __current_time = __statistics[-1].replace(
+                        "`", "").split(" ")[-1]
 
                     # Goal Difference
                     if (
@@ -206,10 +208,9 @@ def bet_gbets(driver, match_groups_list, browser_type="CHROME"):
                     __match_not_started = True
                     __goals = __statistics[0].split(":")
 
-                # time.sleep(INTERACTIVE_ELEMENT_WAIT_PERIOD_10S)
-                time.sleep(INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
+                time.sleep(INTERACTIVE_ELEMENT_WAIT_PERIOD)
                 print(
-                    f"{browser_type} --- [ {datetime.now()} ] 🎳 🎳 🎳 vetting on winning chances:: {__team_one.strip()} vs {__team_two.strip()}"
+                    f"{browser_type} --- [ {datetime.now()} ] 🎳 🎳 🎳 | TEAM: {__team_number+1}/{__teams_group_length:<3} | vetting on winning chances:: {__team_one.strip()} vs {__team_two.strip()}"
                 )
                 if __home_leading and __away_odds - __home_odds >= 0.5:
                     # choose home win
@@ -221,7 +222,7 @@ def bet_gbets(driver, match_groups_list, browser_type="CHROME"):
                     __clicked_element = __home_win
                     __home_win.click()
 
-                    time.sleep(INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
+                    time.sleep(INTERACTIVE_ELEMENT_WAIT_PERIOD)
                     __match_count = __match_count + 1
 
                     print(
@@ -239,7 +240,7 @@ def bet_gbets(driver, match_groups_list, browser_type="CHROME"):
 
                     __clicked_element = __away_win
                     __away_win.click()
-                    time.sleep(INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
+                    time.sleep(INTERACTIVE_ELEMENT_WAIT_PERIOD)
                     print(
                         f"{browser_type} --- [ {datetime.now()} ] 🏁 🏁 🏁 GROUP NUMBER: {__group_number+1} | TEAM: {__team_number+1}/{__teams_group_length:<3} | {'[AWAY LEADING]':<4} Odds: {__away_odds:<4} | Selected--: {__match_count:<3}"
                     )
@@ -272,7 +273,7 @@ def bet_gbets(driver, match_groups_list, browser_type="CHROME"):
 
                         __clicked_element = __away_win
                         __away_win.click()
-                        time.sleep(INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
+                        time.sleep(INTERACTIVE_ELEMENT_WAIT_PERIOD)
                         print(
                             f"{browser_type} --- [ {datetime.now()} ] 🏁 🏁 🏁 GROUP NUMBER: {__group_number+1} | TEAM: {__team_number+1}/{__teams_group_length:<3} | {'[NO LEAD: AWAY FAVORED]':<4} Odds: {__away_odds:<4} | Selected--: {__match_count:<3}"
                         )
@@ -287,13 +288,14 @@ def bet_gbets(driver, match_groups_list, browser_type="CHROME"):
 
                         __clicked_element = __draw_win
                         __draw_win.click()
-                        time.sleep(INTERACTIVE_ELEMENT_WAIT_PERIOD_3S)
+                        time.sleep(INTERACTIVE_ELEMENT_WAIT_PERIOD)
                         print(
                             f"{browser_type} --- [ {datetime.now()} ] 🏁 🏁 🏁 GROUP NUMBER: {__group_number+1} | TEAM: {__team_number+1}/{__teams_group_length:<3} | {'DRAW/DOUBLE CHANCE':<4} Odds: {__draw_odds:<4} | Selected--: {__match_count:<3}"
                         )
 
                 time.sleep(5)
             except Exception as _e:
+                # raise
                 print(
                     f"{browser_type} --- [ {datetime.now()} ] 🎳 🎳 🎳 Errored on betting:: {__team_one.strip()} vs {__team_two.strip()}"
                 )
@@ -302,7 +304,6 @@ def bet_gbets(driver, match_groups_list, browser_type="CHROME"):
                 )
                 __clicked_element.click() if __clicked_element else None
                 del __clicked_element
-                continue
 
         if __bet_done and __match_count > MINIMUM_TEAMS:
             __stake_value = f"{f'{LOW_STAKE}' if __match_count <
@@ -326,7 +327,7 @@ def bet_gbets(driver, match_groups_list, browser_type="CHROME"):
                 if not (__stake and __stake.isdigit() and int(__stake) == 1):
 
                     __stake_input[0].send_keys(__stake_value)
-                    time.sleep(INTERACTIVE_ELEMENT_WAIT_PERIOD_10S)
+                    time.sleep(INTERACTIVE_ELEMENT_WAIT_PERIOD)
 
                 # remove suspended bets
                 remove_suspended(driver)
@@ -336,13 +337,13 @@ def bet_gbets(driver, match_groups_list, browser_type="CHROME"):
                     By.XPATH, "//button[@data-testid='place-bet']"
                 )
                 # SCROLL TO TEAM
-                try:
-                    driver.execute_script(
-                        "arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});",
-                        __place_bet,
-                    )
-                except:
-                    pass
+                # try:
+                #     driver.execute_script(
+                #         "arguments[0].scrollIntoView({behavior: 'auto', block: 'center'});",
+                #         __place_bet,
+                #     )
+                # except:
+                #     pass
 
                 time.sleep(2)
                 __place_bet.click()
@@ -370,9 +371,10 @@ def bet_gbets(driver, match_groups_list, browser_type="CHROME"):
                                 EC.element_to_be_clickable(__clear_bets[0])
                             ).click()
                         except:
+                            # raise
                             pass
 
-                        time.sleep(INTERACTIVE_ELEMENT_WAIT_PERIOD_10S)
+                        time.sleep(INTERACTIVE_ELEMENT_WAIT_PERIOD)
                 else:
                     print(
                         f"{browser_type} --- [ {datetime.now()} ] ✅ ✅ ✅ GROUP NUMBER: {__group_number}/{__match_groups_list_length:<3} | Bet Done: {__bet_done} | Match Count: {__match_count}"

@@ -22,7 +22,7 @@ user_data_dir = tempfile.mkdtemp()
 
 # Configure Chrome options
 options = Options()
-options.add_argument(f"--user-data-dir={user_data_dir}")
+options.add_argument(f"--user-data-dir=/Users/g0d/Workspace/projects/betting/tmp/")
 options.set_preference("browser.cache.disk.enable", False)
 options.set_preference("browser.cache.memory.enable", False)
 options.set_preference("browser.cache.offline.enable", False)
@@ -103,6 +103,7 @@ def reload_results_and_table(driver):
 
         __result_options[0].click()
     except Exception as e:
+        # raise
         return None
     time.sleep(10)
 
@@ -184,17 +185,20 @@ def withdraw_cashout(driver, btn_cashout, cash, row, is_low_return: bool = True)
                     f"[ {datetime.now()} ] 💼 💼 💼 Proceeded to Bag: {row:>5} | 💸 💸 💸 WIN: {__cashout:>5}"
                 )
         except:
+            # raise
             pass
 
         # confirm cashout
         print(f"[ {datetime.now()} ] -------- Click Ok")
-        time.sleep(5)
+        time.sleep(7)
+        __clicked_ok = False
         __okay_button = driver.find_elements(
             By.XPATH,
             "//button[contains(@class, 'v3-btn') and .//span[normalize-space(text())='OK']]",
         )
         if not len(__okay_button):
-            raise Exception("No Okay Button Found")
+            # raise
+            # raise Exception("No Okay Button Found")
         __okay_button[0].click()
 
         print(
@@ -203,6 +207,7 @@ def withdraw_cashout(driver, btn_cashout, cash, row, is_low_return: bool = True)
         time.sleep(2)
         return
     except:
+        # raise
         print(f"[ {datetime.now()} ] -------- Click Cancel Button")
         __cancel_cashout = driver.find_elements(
             By.XPATH,
@@ -243,7 +248,8 @@ def gbets_cashout():
         sign_in(driver)
         time.sleep(3)
     except Exception as e:
-        raise
+        # raise
+        print(e)
 
     while True:
         __table_body = reload_results_and_table(driver=driver)
@@ -251,6 +257,7 @@ def gbets_cashout():
             try:
                 sign_out(driver=driver)
             except:
+                # raise
                 pass
             finally:
                 driver.quit()
@@ -384,6 +391,7 @@ def gbets_cashout():
                 time.sleep(5)
             except:
                 # close modal
+                # raise
                 __close_header = driver.find_elements(
                     By.XPATH,
                     "//div[contains(@class, 'accountModal__header__title')]/following-sibling::*",
@@ -395,6 +403,7 @@ def gbets_cashout():
         # sign out
         sign_out(driver=driver)
     except:
+        # raise
         pass
     finally:
         driver.quit()
