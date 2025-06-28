@@ -21,8 +21,8 @@ if __name__ == "__main__":
         bet_combo.bet_combo_lists()
 
         # clear combo
-        # with open("data/teams.combo.data", "w") as __file:
-        #     __file.close()
+        with open("data/teams.combo.data", "w") as __file:
+            __file.close()
 
         print(f"[ {time.strftime('%Y-%m-%d %H:%M:%S')} ] Exit Combo!")
         exit(0)

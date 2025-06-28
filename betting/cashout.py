@@ -170,7 +170,7 @@ def withdraw_cashout(driver, btn_cashout, cash, row, is_low_return: bool = True)
                 )
             )
         ).click()
-        time.sleep(5)
+        time.sleep(15)
 
         try:
             __proceed_button = driver.find_elements(

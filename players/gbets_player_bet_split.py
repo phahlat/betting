@@ -130,7 +130,7 @@ def bet_splitted_lists():
     navigate_to_sports(driver)
     print(f"[ {datetime.now()} ] -- Read Data")
     with open("data/teams.split.data", "r") as __file:
-        __teams_list = [team.strip() for team in __file.readlines() if team.strip()]
+        __teams_list = [team.strip() for team in __file.readlines() if team.strip()][:40]
 
         __first_half_teams = [
             s.split("|")[0]
@@ -214,7 +214,8 @@ def bet_splitted_lists():
                     )
                 )
             )
-
+            
+        __chunked_matches_lists = __chunked_matches_lists + [__teams_list]
     if len(__chunked_matches_lists) == 0:
         driver.quit()
         return
